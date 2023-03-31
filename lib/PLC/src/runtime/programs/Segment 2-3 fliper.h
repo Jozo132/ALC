@@ -88,7 +88,7 @@ struct segment_2_3_t: _vovk_plc_block_t {
                 }
                 case FAZA_2_PRICAKAJ_PRIHOD_DESKE: {
                     bool veriga_stoji = !M2_3;
-                    if (deska_vhodna_prisotna && veriga_stoji) {
+                    if (deska_vhodna_prisotna && veriga_stoji && !segment_2_4.blokada_z_strani_filperja) {
                         segment_2_4.blokada_z_strani_filperja = true;
                         prosto_za_desko = false;
                         flow.next();

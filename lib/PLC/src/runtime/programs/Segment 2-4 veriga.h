@@ -71,7 +71,6 @@ struct segment_2_4_t: _vovk_plc_block_t {
         if (!enabled) return;
 
         deska_vhodna_prisotna = P2;
-        P3 = false;
         deska_izhodna_prisotna = P3;
 
         bool senzor_pohojen = S2_3;
@@ -84,12 +83,13 @@ struct segment_2_4_t: _vovk_plc_block_t {
         bool kombinacija_1_zagona = stevilo_desk > 0 && !deska_izhodna_prisotna;
         bool kombinacija_2_zagona = zalogovnik.prisotnaPrva() && !zalogovnik.prisotnaZadnja() && deska_izhodna_prisotna;
 
-        bool push_is_safe = kombinacija_1_zagona || kombinacija_2_zagona;
+        bool push_is_safe = !blokada_z_strani_filperja && (kombinacija_1_zagona || kombinacija_2_zagona);
         if (work) {
             switch (flow.phase) {
                 case FAZA_0_PRICAKAJ_POGOJE: {
                     M2_3 = false;
                     if (push_is_safe) {
+                        blokada_z_strani_filperja = true;
                         if (kombinacija_1_zagona) Serial.printf(_SEGMENT_NAME_ " Pomik na valjcke\n");
                         if (kombinacija_2_zagona) Serial.printf(_SEGMENT_NAME_ " Vmesno polnjenje\n");
                         safe = false;
@@ -154,7 +154,8 @@ struct segment_2_4_t: _vovk_plc_block_t {
                             safe = true;
                             finished = true;
                         }
-                        flow.goTo(FAZA_0_PRICAKAJ_POGOJE); // Podaj naslednjo desko
+                        blokada_z_strani_filperja = false;
+                        flow.reset(); // Podaj naslednjo desko
                     }
                     break;
                 }
@@ -165,7 +166,8 @@ struct segment_2_4_t: _vovk_plc_block_t {
                         safe = true;
                         finished = true;
                         // if (AUTO)
-                        flow.goTo(FAZA_0_PRICAKAJ_POGOJE);
+                        flow.reset();
+                        blokada_z_strani_filperja = false;
                         // else izhodisce();
                     }
                     break;

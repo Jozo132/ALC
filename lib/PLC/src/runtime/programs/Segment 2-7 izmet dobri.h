@@ -1,10 +1,10 @@
 #pragma once
 #include "../config.h"
 
-#define _SEGMENT_NAME_ "[Segment 2-5 proga]"
+#define _SEGMENT_NAME_ "[Segment 2-7 izmet dobri]"
 
 
-struct segment_2_5_t: _vovk_plc_block_t {
+struct segment_2_7_t: _vovk_plc_block_t {
     bool deska_vhodna_pripravljena = true;
     bool deska_izhodna_pripravljena = true;
 
@@ -12,8 +12,7 @@ struct segment_2_5_t: _vovk_plc_block_t {
         // if (DEBUG_FLOW && running) Serial.printf(_SEGMENT_NAME_ " Konec\n");
         running = false;
         finished = false;
-        M2_4 = false;
-        M2_5 = false;
+        IzmetacDobri.nazaj();
         safe = true;
         flow.reset();
     }
@@ -42,9 +41,8 @@ struct segment_2_5_t: _vovk_plc_block_t {
 
     enum {
         FAZA_0_PRICAKAJ_POGOJE = 0,
-        FAZA_1_ZAGON,
-        FAZA_2_ZAKASNJEN_ZAGON,
-        FAZA_3_USTAVITEV
+        FAZA_1_NAPREJ,
+        FAZA_2_NAZAJ
     };
 
     void loop() {
@@ -56,41 +54,31 @@ struct segment_2_5_t: _vovk_plc_block_t {
         if (!enabled) {
             return;
         }
-        deska_vhodna_pripravljena = P3;
-        deska_izhodna_pripravljena = P5; // TODO: P4 za IZMET
-
-        bool deska_prisotna = S2_1;
-
+        P5 = S2_9;
+        deska_vhodna_pripravljena = P5;
+        deska_izhodna_pripravljena = false; // P6 
+        // if (P_5s) {
+        //     Serial.printf("deska_vhodna_pripravljena: %c   deska_izhodna_pripravljena: %c   IzmetacDobri.jeZadaj(): %c\n", deska_vhodna_pripravljena ? '1' : '0', deska_izhodna_pripravljena ? '1' : '0', IzmetacDobri.jeZadaj() ? '1' : '0');
+        // }
         bool on = AUTO || ROCNO;
         bool work = running && on;
         if (work) {
             switch (flow.phase) {
                 case FAZA_0_PRICAKAJ_POGOJE: {
+                    IzmetacDobri.nazaj();
                     flow.next();
                     break;
                 }
-                case FAZA_1_ZAGON: {
+                case FAZA_1_NAPREJ: {
                     if (deska_vhodna_pripravljena && !deska_izhodna_pripravljena && IzmetacDobri.jeZadaj()) {
-                        M2_4 = true;
-                        M2_5 = false;
-                        timer.set(500);
+                        if (S2_9) IzmetacDobri.naprej();
+                        timer.set(5000);
                         flow.next();
                     }
                     break;
                 }
-                case FAZA_2_ZAKASNJEN_ZAGON: {
-                    if (timer.finished()) {
-                        M2_4 = true;
-                        M2_5 = true;
-                        timer.set(30000); // timer za izklop proge
-                        flow.next();
-                    }
-                    break;
-                }
-                case FAZA_3_USTAVITEV: {
-                    if (timer.finished() || S2_9) {
-                        M2_4 = false;
-                        M2_5 = false;
+                case FAZA_2_NAZAJ: {
+                    if (IzmetacDobri.jeSpredaj() || timer.finished()) {
                         deska_vhodna_pripravljena = false;
                         deska_izhodna_pripravljena = true;
                         flow.reset();
@@ -106,9 +94,8 @@ struct segment_2_5_t: _vovk_plc_block_t {
         } else {
             izhodisce();
         }
-        P3 = deska_vhodna_pripravljena;
-        P5 = deska_izhodna_pripravljena;
+        P5 = deska_vhodna_pripravljena;
     }
 };
 
-segment_2_5_t segment_2_5;
+segment_2_7_t segment_2_7;

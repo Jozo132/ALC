@@ -44,7 +44,7 @@ bool& S2_6 = expansion.attachInputBit(13, BUTTON_DEBOUNCE_CYCLES);            //
 bool& S2_7 = expansion.attachInputBit(14, BUTTON_DEBOUNCE_CYCLES);            // VHOD 14 - S2.7 FLIPER SENZOR 4
 bool& S2_8 = expansion.attachInputBit(15, BUTTON_DEBOUNCE_CYCLES);            // VHOD 15 - S2.8 POZICIJA DESKE VMESNA POZICIJA
 
-bool& S2_9 = expansion.attachInputBit(16, BUTTON_DEBOUNCE_CYCLES);            // VHOD 16 - S2.9 POZICIJA LESA KONEC
+bool& S2_9 = expansion.attachInputBit(16, BUTTON_DEBOUNCE_CYCLES, INVERTED);  // VHOD 16 - S2.9 POZICIJA LESA KONEC
 
 bool& S2_10 = expansion.attachInputBit(20, BUTTON_DEBOUNCE_CYCLES);           // VHOD 20 - S2.10 IZMET SLABIH OD (OSNOVNI POLOŽAJ)
 bool& S2_11 = expansion.attachInputBit(21, BUTTON_DEBOUNCE_CYCLES);           // VHOD 21 - S2.11 IZMET SLABIH DP (DELOVNI POLOŽAJ)
@@ -131,11 +131,28 @@ struct Fliper_t {
     }
 } Fliper;
 
+struct IzmetacDobri_t {
+    void naprej() {
+        Y2_4A = false;
+        Y2_4B = true;
+    }
+    void nazaj() {
+        Y2_4A = true;
+        Y2_4B = false;
+    }
+    bool jeSpredaj() {
+        return !S2_13 && S2_14;
+    }
+    bool jeZadaj() {
+        return S2_13 && !S2_14;
+    }
+} IzmetacDobri;
+
 bool P1 = false;  // Deska prisotna na koncu traka
-bool P2 = false;   // Deska prisotna na odlagalnem mestu
+bool P2 = true;   // Deska prisotna na odlagalnem mestu
 bool P3 = true;   // Deska na zgornjem traku
 bool P4 = true;   // Deska na vmesni poziciji
-bool P5 = false;  // Deska na koncu traka
+bool P5 = true;  // Deska na koncu traka
 
 bool veriga_2_2_obratuje = false;
 

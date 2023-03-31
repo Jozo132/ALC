@@ -21,4 +21,5 @@ bool P_100ms = false;
 #include "./programs/Segment 2-3 fliper.h"
 #include "./programs/Segment 2-4 veriga.h"
 #include "./programs/Segment 2-5 proga.h"
+#include "./programs/Segment 2-7 izmet dobri.h"
 #include "config.h"

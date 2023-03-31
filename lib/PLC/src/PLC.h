@@ -9,13 +9,15 @@ struct plc_t {
         segment_2_3.izhodisce();
         segment_2_4.izhodisce();
         segment_2_5.izhodisce();
+        segment_2_7.izhodisce();
     }
     void setup() {
         segment_2_1.setup(true);
         segment_2_2.setup(true);
         segment_2_3.setup(true);
         segment_2_4.setup(true);
-        segment_2_5.setup(false);
+        segment_2_5.setup(true);
+        segment_2_7.setup(true);
         izhodisce();
     }
 
@@ -25,6 +27,7 @@ struct plc_t {
         segment_2_3.run();
         segment_2_4.run();
         segment_2_5.run();
+        segment_2_7.run();
     }
     void stop_soft() {
         segment_2_1.stop();
@@ -32,6 +35,7 @@ struct plc_t {
         segment_2_3.stop();
         segment_2_4.stop_soft();
         segment_2_5.stop();
+        segment_2_7.stop();
     }
     void stop_hard() {
         stop_soft();
@@ -87,7 +91,7 @@ struct plc_t {
 
 
 
-        bool all_stopped = !segment_2_1.running && !segment_2_2.running && !segment_2_3.running && !segment_2_4.running && !segment_2_5.running;
+        bool all_stopped = !segment_2_1.running && !segment_2_2.running && !segment_2_3.running && !segment_2_4.running && !segment_2_5.running && !segment_2_7.running;
 
         // if (all_stopped) LED_AUTO = P_1s ? !LED_AUTO : LED_AUTO;
         // else LED_AUTO = ON;
@@ -173,6 +177,7 @@ struct plc_t {
             segment_2_1.loop();
             segment_2_3.loop();
             segment_2_5.loop();
+            segment_2_7.loop();
         }
         segment_2_2.loop();
         segment_2_4.loop();
