@@ -96,6 +96,7 @@ struct plc_t {
         // if (all_stopped) LED_AUTO = P_1s ? !LED_AUTO : LED_AUTO;
         // else LED_AUTO = ON;
         if (IZKLOP_V_SILI) {
+            cycle_counter = 0;
             // SEMAFOR_RDECA = true;
             // SEMAFOR_ZELENA = false;
             stop_hard();

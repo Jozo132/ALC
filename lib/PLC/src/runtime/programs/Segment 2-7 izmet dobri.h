@@ -42,7 +42,8 @@ struct segment_2_7_t: _vovk_plc_block_t {
     enum {
         FAZA_0_PRICAKAJ_POGOJE = 0,
         FAZA_1_NAPREJ,
-        FAZA_2_NAZAJ
+        FAZA_2_NAZAJ,
+        FAZA_3_POCAKAJ_PADEC
     };
 
     void loop() {
@@ -55,8 +56,10 @@ struct segment_2_7_t: _vovk_plc_block_t {
             return;
         }
         P5 = S2_9;
+        P6 = S2_15;
+
         deska_vhodna_pripravljena = P5;
-        deska_izhodna_pripravljena = false; // P6 
+        deska_izhodna_pripravljena = P6;
         // if (P_5s) {
         //     Serial.printf("deska_vhodna_pripravljena: %c   deska_izhodna_pripravljena: %c   IzmetacDobri.jeZadaj(): %c\n", deska_vhodna_pripravljena ? '1' : '0', deska_izhodna_pripravljena ? '1' : '0', IzmetacDobri.jeZadaj() ? '1' : '0');
         // }
@@ -79,8 +82,15 @@ struct segment_2_7_t: _vovk_plc_block_t {
                 }
                 case FAZA_2_NAZAJ: {
                     if (IzmetacDobri.jeSpredaj() || timer.finished()) {
-                        deska_vhodna_pripravljena = false;
-                        deska_izhodna_pripravljena = true;
+                        IzmetacDobri.nazaj();
+                        flow.next();
+                    }
+                    break;
+                }
+                case FAZA_3_POCAKAJ_PADEC: {
+                    bool jeZadaj = IzmetacDobri.jeZadaj();
+                    if (jeZadaj) deska_vhodna_pripravljena = false;
+                    if (jeZadaj && deska_izhodna_pripravljena) {
                         flow.reset();
                     }
                     break;

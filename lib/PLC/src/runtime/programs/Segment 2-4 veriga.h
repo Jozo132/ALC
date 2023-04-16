@@ -29,6 +29,8 @@ struct segment_2_4_t: _vovk_plc_block_t {
         izhodisce();
         zalogovnik.setup(velikost_zalogovnika);
         zalogovnik.pozicija[0] = 0;
+        // P2 = false;
+        // zalogovnik.empty();
     }
 
     Timeout t_zakasnitev;
@@ -80,8 +82,19 @@ struct segment_2_4_t: _vovk_plc_block_t {
         bool on = AUTO || ROCNO || stopping;
         bool work = running && on;
 
+        bool prvaPrisotna = zalogovnik.prisotnaPrva();
+        bool zadnjaPrisotna = zalogovnik.prisotnaZadnja();
         bool kombinacija_1_zagona = stevilo_desk > 0 && !deska_izhodna_prisotna;
-        bool kombinacija_2_zagona = zalogovnik.prisotnaPrva() && !zalogovnik.prisotnaZadnja() && deska_izhodna_prisotna;
+        bool kombinacija_2_zagona = prvaPrisotna && !zadnjaPrisotna && deska_izhodna_prisotna;
+
+        if (P_5s) {
+            Serial.printf(_SEGMENT_NAME_ " status: DESKE: %d , IZH: %c , PP: %c , ZP: %c\n",
+                stevilo_desk,
+                deska_izhodna_prisotna ? 'Y' : 'N',
+                prvaPrisotna ? 'Y' : 'N',
+                zadnjaPrisotna ? 'Y' : 'N'
+            );
+        }
 
         bool push_is_safe = !blokada_z_strani_filperja && (kombinacija_1_zagona || kombinacija_2_zagona);
         if (work) {
@@ -149,13 +162,15 @@ struct segment_2_4_t: _vovk_plc_block_t {
                         // if (P2) cilindri.run();
                         flow.next();
                     } else {
+                        blokada_z_strani_filperja = false;
                         if (single_move) {
                             M2_3 = false;
                             safe = true;
                             finished = true;
+                            flow.reset();
+                        } else {
+                            flow.goTo(FAZA_1_M2_ON); // Podaj naslednjo desko
                         }
-                        blokada_z_strani_filperja = false;
-                        flow.reset(); // Podaj naslednjo desko
                     }
                     break;
                 }

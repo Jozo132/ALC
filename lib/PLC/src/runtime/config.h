@@ -21,36 +21,40 @@ LSR32IO expansion(cs_pin, latch_pin, en_pin, rst_pin);
 
 #define DEBUG_FLOW_CHANGE true
 
-#define BUTTON_DEBOUNCE_CYCLES 30
+#define DEBOUNCE_FAST 30 // Number of cycles to debounce inputs
+#define DEBOUNCE_SLOW 250 // Number of cycles to debounce inputs
 
-bool& SW_BTN_MCU = expansion.attachInputBit(31, BUTTON_DEBOUNCE_CYCLES);
+bool& SW_BTN_MCU = expansion.attachInputBit(31, DEBOUNCE_FAST);
+// bool& SW_BTN_MCU = AutoPins.attach(PA0, INPUT_PULLUP);
 
 // INPUTS
-bool& EMERGENCY = expansion.attachInputBit(0, BUTTON_DEBOUNCE_CYCLES);                  // VHOD  0 - STATUS IZKLOP V SILI (invertiran)
-bool& SW_A_START = expansion.attachInputBit(1, BUTTON_DEBOUNCE_CYCLES);                 // VHOD  1 - TIPKA START
-bool& SW_A_STOP = expansion.attachInputBit(2, BUTTON_DEBOUNCE_CYCLES, INVERTED);        // VHOD  2 - TIPKA STOP (invertiran)
-bool& SW_MODE_1 = expansion.attachInputBit(3, BUTTON_DEBOUNCE_CYCLES);                  // VHOD  3 - TIPKA MODE 1 (režim delovanja)
-bool& SW_MODE_2 = expansion.attachInputBit(4, BUTTON_DEBOUNCE_CYCLES);                  // VHOD  4 - TIPKA MODE 2 (režim delovanja)
-bool& SW_IZHODISCE = expansion.attachInputBit(5, BUTTON_DEBOUNCE_CYCLES);               // VHOD  5 - TIPKA IZHODISCE
-bool& VKLOP_SISTEMA = expansion.attachInputBit(6, BUTTON_DEBOUNCE_CYCLES);              // VHOD  6 - TIPKA VKLOP SISTEMA
-bool& IZPAD_BIMETALA = expansion.attachInputBit(7, BUTTON_DEBOUNCE_CYCLES, INVERTED);   // VHOD  7 - IZPAD BIMETALA
+bool& EMERGENCY = expansion.attachInputBit(0, DEBOUNCE_FAST);                  // VHOD  0 - STATUS IZKLOP V SILI (invertiran)
+bool& SW_A_START = expansion.attachInputBit(1, DEBOUNCE_FAST);                 // VHOD  1 - TIPKA START
+bool& SW_A_STOP = expansion.attachInputBit(2, DEBOUNCE_FAST, INVERTED);        // VHOD  2 - TIPKA STOP (invertiran)
+bool& SW_MODE_1 = expansion.attachInputBit(3, DEBOUNCE_FAST);                  // VHOD  3 - TIPKA MODE 1 (režim delovanja)
+bool& SW_MODE_2 = expansion.attachInputBit(4, DEBOUNCE_FAST);                  // VHOD  4 - TIPKA MODE 2 (režim delovanja)
+bool& SW_IZHODISCE = expansion.attachInputBit(5, DEBOUNCE_FAST);               // VHOD  5 - TIPKA IZHODISCE
+bool& VKLOP_SISTEMA = expansion.attachInputBit(6, DEBOUNCE_FAST);              // VHOD  6 - TIPKA VKLOP SISTEMA
+bool& IZPAD_BIMETALA = expansion.attachInputBit(7, DEBOUNCE_FAST, INVERTED);   // VHOD  7 - IZPAD BIMETALA
 
-bool& S2_1 = expansion.attachInputBit(8, BUTTON_DEBOUNCE_CYCLES, INVERTED);   // VHOD  8 - S2.1 PRISOTNOST LESA (KONEC)
-bool& S2_2 = expansion.attachInputBit(9, BUTTON_DEBOUNCE_CYCLES);             // VHOD  9 - S2.2 POZICIJA KORAKA IZMETALNE VERIGE
-bool& S2_3 = expansion.attachInputBit(10, BUTTON_DEBOUNCE_CYCLES);            // VHOD 10 - S2.3 POZICIJA KORAKA DVIŽNE VERIGE
-bool& S2_4 = expansion.attachInputBit(11, BUTTON_DEBOUNCE_CYCLES);            // VHOD 11 - S2.4 FLIPER SENZOR 1
-bool& S2_5 = expansion.attachInputBit(12, BUTTON_DEBOUNCE_CYCLES);            // VHOD 12 - S2.5 FLIPER SENZOR 2
-bool& S2_6 = expansion.attachInputBit(13, BUTTON_DEBOUNCE_CYCLES);            // VHOD 13 - S2.6 FLIPER SENZOR 3
-bool& S2_7 = expansion.attachInputBit(14, BUTTON_DEBOUNCE_CYCLES);            // VHOD 14 - S2.7 FLIPER SENZOR 4
-bool& S2_8 = expansion.attachInputBit(15, BUTTON_DEBOUNCE_CYCLES);            // VHOD 15 - S2.8 POZICIJA DESKE VMESNA POZICIJA
+bool& S2_1 = expansion.attachInputBit(8, DEBOUNCE_FAST, INVERTED);   // VHOD  8 - S2.1 PRISOTNOST LESA (KONEC)
+bool& S2_2 = expansion.attachInputBit(9, DEBOUNCE_FAST);             // VHOD  9 - S2.2 POZICIJA KORAKA IZMETALNE VERIGE
+bool& S2_3 = expansion.attachInputBit(10, DEBOUNCE_FAST);            // VHOD 10 - S2.3 POZICIJA KORAKA DVIŽNE VERIGE
+bool& S2_4 = expansion.attachInputBit(11, DEBOUNCE_FAST);            // VHOD 11 - S2.4 FLIPER SENZOR 1
+bool& S2_5 = expansion.attachInputBit(12, DEBOUNCE_FAST);            // VHOD 12 - S2.5 FLIPER SENZOR 2
+bool& S2_6 = expansion.attachInputBit(13, DEBOUNCE_FAST);            // VHOD 13 - S2.6 FLIPER SENZOR 3
+bool& S2_7 = expansion.attachInputBit(14, DEBOUNCE_FAST);            // VHOD 14 - S2.7 FLIPER SENZOR 4
+bool& S2_8 = expansion.attachInputBit(15, DEBOUNCE_FAST);            // VHOD 15 - S2.8 POZICIJA DESKE VMESNA POZICIJA
 
-bool& S2_9 = expansion.attachInputBit(16, BUTTON_DEBOUNCE_CYCLES, INVERTED);  // VHOD 16 - S2.9 POZICIJA LESA KONEC
+bool& S2_9 = expansion.attachInputBit(16, DEBOUNCE_FAST, INVERTED);  // VHOD 16 - S2.9 POZICIJA LESA KONEC
+bool& S2_12 = expansion.attachInputBit(17, DEBOUNCE_SLOW);           // VHOD 17 - S2.12 POZICIJA LESA NA VALJCNI 2
 
-bool& S2_10 = expansion.attachInputBit(20, BUTTON_DEBOUNCE_CYCLES);           // VHOD 20 - S2.10 IZMET SLABIH OD (OSNOVNI POLOŽAJ)
-bool& S2_11 = expansion.attachInputBit(21, BUTTON_DEBOUNCE_CYCLES);           // VHOD 21 - S2.11 IZMET SLABIH DP (DELOVNI POLOŽAJ)
-bool& S2_13 = expansion.attachInputBit(22, BUTTON_DEBOUNCE_CYCLES);           // VHOD 22 - S2.13 IZMET DOBRIH OD (OSNOVNI POLOŽAJ)
-bool& S2_14 = expansion.attachInputBit(23, BUTTON_DEBOUNCE_CYCLES);           // VHOD 23 - S2.14 IZMET DOBRIH DP (DELOVNI POLOŽAJ)
+bool& S2_10 = expansion.attachInputBit(20, DEBOUNCE_FAST);           // VHOD 20 - S2.10 IZMET SLABIH OD (OSNOVNI POLOŽAJ)
+bool& S2_11 = expansion.attachInputBit(21, DEBOUNCE_FAST);           // VHOD 21 - S2.11 IZMET SLABIH DP (DELOVNI POLOŽAJ)
+bool& S2_13 = expansion.attachInputBit(22, DEBOUNCE_FAST);           // VHOD 22 - S2.13 IZMET DOBRIH OD (OSNOVNI POLOŽAJ)
+bool& S2_14 = expansion.attachInputBit(23, DEBOUNCE_FAST);           // VHOD 23 - S2.14 IZMET DOBRIH DP (DELOVNI POLOŽAJ)
 
+bool& S2_15 = expansion.attachInputBit(24, DEBOUNCE_FAST, INVERTED); // VHOD 24 - S2.15 PRISOTNOST KOSA PRED ŽAGO (KONEC)
 
 
 // OUTPUTS
@@ -153,6 +157,7 @@ bool P2 = true;   // Deska prisotna na odlagalnem mestu
 bool P3 = true;   // Deska na zgornjem traku
 bool P4 = true;   // Deska na vmesni poziciji
 bool P5 = true;  // Deska na koncu traka
+bool P6 = true;  // Deska na vhodu zage
 
 bool veriga_2_2_obratuje = false;
 
@@ -161,6 +166,8 @@ bool ROCNO = false;  // Mode ROCNO
 bool SERVIS = false; // Mode SERVIS
 bool STOP = true;
 
+
+int cycle_counter = 0;
 
 #define DVOJNI_ZAGON  true
 
@@ -190,10 +197,17 @@ struct Zalogovnik_t {
     }
     bool move() {
         bool output = pozicija[velikost_zalogovnika - 1];
-        for (int i = velikost_zalogovnika - 1; i > 0; i--) pozicija[i] = pozicija[i - 1];
+        st_desk = 0;
+        for (int i = velikost_zalogovnika - 1; i > 0; i--) {
+            pozicija[i] = pozicija[i - 1];
+            if (pozicija[i]) st_desk++;
+        }
         pozicija[0] = 0;
-        st_desk--;
         return output;
+    }
+    void empty() {
+        for (int i = 0; i < velikost_zalogovnika; i++) pozicija[i] = 0;
+        st_desk = 0;
     }
     bool prisotnaPrva() {
         return pozicija[0] == 1;

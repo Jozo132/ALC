@@ -72,7 +72,7 @@ struct segment_2_1_t: _vovk_plc_block_t {
                 zakasnitev_izklopa.set(3000);
             }
 
-            M2_1 = flow.phase != FAZA_2_IZMET && !deska_izhodna_pripravljena && !deska_prisotna && !veriga_2_2_obratuje;
+            M2_1 = flow.phase != FAZA_2_IZMET /* && !deska_izhodna_pripravljena */ && !deska_prisotna && !veriga_2_2_obratuje;
 
             if (M2_1) masina_lahko_dela = true;
             else {
@@ -113,7 +113,8 @@ struct segment_2_1_t: _vovk_plc_block_t {
             izhodisce();
         }
 
-        P1 = deska_izhodna_pripravljena || ROCNO; // P1 je prisotna, ce je proga deska_izhodna_pripravljenaa ali ce je rocno vklopljena
+        // P1 = deska_izhodna_pripravljena || ROCNO; // P1 je prisotna, ce je proga deska_izhodna_pripravljenaa ali ce je rocno vklopljena
+        P1 = deska_izhodna_pripravljena; // P1 je prisotna, ce je proga deska_izhodna_pripravljena
         OUT_HOLD = !masina_lahko_dela; // Stroj lahko obdeluje samo kadar je proga aktivna
         safe = !M2_1; // Proga je varna, ce je izklopljena
     }
