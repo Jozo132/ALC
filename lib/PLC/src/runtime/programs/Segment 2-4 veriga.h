@@ -8,11 +8,6 @@ struct segment_2_4_t: _vovk_plc_block_t {
     bool deska_vhodna_prisotna = true;
     bool deska_izhodna_prisotna = true;
 
-    bool blokada_z_strani_filperja = false;
-
-    Zalogovnik_t zalogovnik;
-    int velikost_zalogovnika = 4;
-
     void izhodisce() {
         // if (DEBUG_FLOW && running) Serial.printf(_SEGMENT_NAME_ " Konec\n");
         running = false;
@@ -156,7 +151,7 @@ struct segment_2_4_t: _vovk_plc_block_t {
                     bool single_move = deska_izhodna_prisotna && zalogovnik.safeToMoveOne();
                     bool prisotna_deska = zalogovnik.move();
                     deska_vhodna_prisotna = false;
-                    if (prisotna_deska || SERVIS) {
+                    if (prisotna_deska || flipper_ima_desko || SERVIS) {
                         // SERVIS_M2 = false;
                         deska_izhodna_prisotna = true;
                         // if (P2) cilindri.run();

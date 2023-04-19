@@ -73,7 +73,7 @@ struct segment_2_7_t: _vovk_plc_block_t {
                     break;
                 }
                 case FAZA_1_NAPREJ: {
-                    if (deska_vhodna_pripravljena && !deska_izhodna_pripravljena && IzmetacDobri.jeZadaj()) {
+                    if (ZAVESA && deska_vhodna_pripravljena && !deska_izhodna_pripravljena && IzmetacDobri.jeZadaj()) {
                         if (S2_9) IzmetacDobri.naprej();
                         timer.set(5000);
                         flow.next();
@@ -84,6 +84,11 @@ struct segment_2_7_t: _vovk_plc_block_t {
                     if (IzmetacDobri.jeSpredaj() || timer.finished()) {
                         IzmetacDobri.nazaj();
                         flow.next();
+                    } else {
+                        if (!ZAVESA) {
+                            IzmetacDobri.nazaj();
+                            flow.goTo(FAZA_1_NAPREJ);
+                        }
                     }
                     break;
                 }

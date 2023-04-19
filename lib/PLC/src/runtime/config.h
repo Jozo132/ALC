@@ -56,6 +56,7 @@ bool& S2_14 = expansion.attachInputBit(23, DEBOUNCE_FAST);           // VHOD 23 
 
 bool& S2_15 = expansion.attachInputBit(24, DEBOUNCE_FAST, INVERTED); // VHOD 24 - S2.15 PRISOTNOST KOSA PRED ŽAGO (KONEC)
 
+bool& ZAVESA = expansion.attachInputBit(25, DEBOUNCE_FAST);          // VHOD 25 - ZAVESA
 
 // OUTPUTS
 bool& OUT_HOLD = expansion.attachOutputBit(0);  // IZHOD  0 - FREIGABE VKLOP
@@ -159,7 +160,11 @@ bool P4 = true;   // Deska na vmesni poziciji
 bool P5 = true;  // Deska na koncu traka
 bool P6 = true;  // Deska na vhodu zage
 
+bool prva_veriga_varna = false;
 bool veriga_2_2_obratuje = false;
+bool segment_2_3_prosto_za_desko = false;
+bool flipper_ima_desko = false;
+bool blokada_z_strani_filperja = false;
 
 bool AUTO = false;   // Mode AUTO
 bool ROCNO = false;  // Mode ROCNO
@@ -219,3 +224,8 @@ struct Zalogovnik_t {
         return pozicija[0] == 1 && pozicija[velikost_zalogovnika - 1] == 0;
     }
 };
+
+
+
+Zalogovnik_t zalogovnik;
+int velikost_zalogovnika = 4;

@@ -1,6 +1,5 @@
 #pragma once
 #include "../config.h"
-#include "Segment 2-2 veriga.h"
 
 #define _SEGMENT_NAME_ "[Segment 2-1 proga]"
 
@@ -89,7 +88,7 @@ struct segment_2_1_t: _vovk_plc_block_t {
                 }
                 case FAZA_1_ZAGON: {
                     if (deska_prisotna) {
-                        if (segment_2_2.safe && !deska_izhodna_pripravljena) {
+                        if (!deska_izhodna_pripravljena) {
                             deska_izhodna_pripravljena = true;
                             flow.next();
                         }
@@ -100,7 +99,7 @@ struct segment_2_1_t: _vovk_plc_block_t {
                 }
                 case FAZA_2_IZMET: {
                     // if (!deska_izhodna_pripravljena) flow.reset();
-                    if (!veriga_2_2_obratuje) flow.reset();
+                    if (prva_veriga_varna && !veriga_2_2_obratuje) flow.reset();
                     break;
                 }
 

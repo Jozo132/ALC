@@ -1,6 +1,5 @@
 #pragma once
 #include "../config.h"
-#include "Segment 2-3 fliper.h"
 
 #define _SEGMENT_NAME_ "[Segment 2-2 veriga]"
 
@@ -13,6 +12,7 @@ struct segment_2_2_t: _vovk_plc_block_t {
         running = false;
         finished = false;
         safe = true;
+        prva_veriga_varna = true;
         M2_2 = false;
         flow.reset();
     }
@@ -60,6 +60,7 @@ struct segment_2_2_t: _vovk_plc_block_t {
             izhodisce();
             finished = true;
             safe = true;
+            prva_veriga_varna = true;
         }
         if (!enabled) return;
 
@@ -68,13 +69,14 @@ struct segment_2_2_t: _vovk_plc_block_t {
 
         bool on = AUTO || ROCNO || stopping;
         bool work = running && on;
-        bool push_is_safe = deska_vhodna_prisotna && !deska_izhodna_prisotna && segment_2_3.prosto_za_desko;
+        bool push_is_safe = deska_vhodna_prisotna && !deska_izhodna_prisotna && segment_2_3_prosto_za_desko && !flipper_ima_desko;
         if (work) {
             switch (flow.phase) {
                 case FAZA_0_PRICAKAJ_POGOJE: {
                     if (push_is_safe) {
                         Serial.printf(_SEGMENT_NAME_ " Pomik\n");
                         safe = false;
+                        prva_veriga_varna = false;
                         finished = false;
                         flow.next();
                     }
@@ -126,9 +128,12 @@ struct segment_2_2_t: _vovk_plc_block_t {
                 }
                 case FAZA_5_M2_OFF_AWAIT_DA_PADE: {
                     M2_2 = false;
+                    flipper_ima_desko = true;
+                    segment_2_3_prosto_za_desko = false;
                     if (flow.phaseSetup()) timer.set(500);
                     if (timer.finished()) {
                         safe = true;
+                        prva_veriga_varna = true;
                         finished = true;
                         flow.goTo(FAZA_0_PRICAKAJ_POGOJE);
                     }

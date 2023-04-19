@@ -107,6 +107,7 @@ struct plc_t {
                 stop_hard();
             else
                 stop_soft();
+            P3 = true; // Forsiraj prisotnost deske
         } else {  // READY
 
             if (AUTO || ROCNO) {
@@ -173,6 +174,13 @@ struct plc_t {
         // _old_SW_2_C = SW_2_C;
         // _old_SW_3_M2 = SW_3_M2;
         // _old_SW_4_M3 = SW_4_M3;
+
+        if (P_5s) {
+            Serial.printf("PLC status: P1: %d , P2: %d , P3: %d , P4: %d , P5: %d , P6: %d\n",
+                P1, P2, P3, P4, P5, P6
+            );
+        }
+
 
         if (!SERVIS) {
             segment_2_1.loop();
