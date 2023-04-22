@@ -86,7 +86,7 @@ struct segment_2_5_t: _vovk_plc_block_t {
                     if (timer.finished() && deska_vhodna_pripravljena && !deska_izhodna_pripravljena && IzmetacDobri.jeZadaj()) {
                         M2_4 = true;
                         M2_5 = false;
-                        timer.set(500);
+                        timer.set(50);
                         flow.next();
                     }
                     break;
@@ -105,7 +105,7 @@ struct segment_2_5_t: _vovk_plc_block_t {
                         cycle_counter++;
                         M2_4 = false;
                         M2_5 = false;
-                        if (!ima_vmesno_desko) deska_vhodna_pripravljena = false; // Samo, ce ni deske na vmesnem senzorju
+                        // if (!ima_vmesno_desko) deska_vhodna_pripravljena = false; // Samo, ce ni deske na vmesnem senzorju
                         if (S2_9) deska_izhodna_pripravljena = true;
                         flow.reset();
                     }

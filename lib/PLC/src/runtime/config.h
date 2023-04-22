@@ -21,8 +21,10 @@ LSR32IO expansion(cs_pin, latch_pin, en_pin, rst_pin);
 
 #define DEBUG_FLOW_CHANGE true
 
-#define DEBOUNCE_FAST 30 // Number of cycles to debounce inputs
-#define DEBOUNCE_SLOW 250 // Number of cycles to debounce inputs
+#define DEBOUNCE_FAST 50 // Number of cycles to debounce inputs
+#define DEBOUNCE_SLOW 1000 // Number of cycles to debounce inputs
+#define DEBOUNCE_1s 5000 // Number of cycles to debounce inputs
+#define DEBOUNCE_3s DEBOUNCE_1s * 3
 
 bool& SW_BTN_MCU = expansion.attachInputBit(31, DEBOUNCE_FAST);
 // bool& SW_BTN_MCU = AutoPins.attach(PA0, INPUT_PULLUP);
@@ -31,15 +33,15 @@ bool& SW_BTN_MCU = expansion.attachInputBit(31, DEBOUNCE_FAST);
 bool& EMERGENCY = expansion.attachInputBit(0, DEBOUNCE_FAST);                  // VHOD  0 - STATUS IZKLOP V SILI (invertiran)
 bool& SW_A_START = expansion.attachInputBit(1, DEBOUNCE_FAST);                 // VHOD  1 - TIPKA START
 bool& SW_A_STOP = expansion.attachInputBit(2, DEBOUNCE_FAST, INVERTED);        // VHOD  2 - TIPKA STOP (invertiran)
-bool& SW_MODE_1 = expansion.attachInputBit(3, DEBOUNCE_FAST);                  // VHOD  3 - TIPKA MODE 1 (režim delovanja)
-bool& SW_MODE_2 = expansion.attachInputBit(4, DEBOUNCE_FAST);                  // VHOD  4 - TIPKA MODE 2 (režim delovanja)
+bool& SW_MODE_1 = expansion.attachInputBit(3, DEBOUNCE_FAST);                  // VHOD  3 - TIPKA MODE 1 (rezim delovanja)
+bool& SW_MODE_2 = expansion.attachInputBit(4, DEBOUNCE_FAST);                  // VHOD  4 - TIPKA MODE 2 (rezim delovanja)
 bool& SW_IZHODISCE = expansion.attachInputBit(5, DEBOUNCE_FAST);               // VHOD  5 - TIPKA IZHODISCE
 bool& VKLOP_SISTEMA = expansion.attachInputBit(6, DEBOUNCE_FAST);              // VHOD  6 - TIPKA VKLOP SISTEMA
 bool& IZPAD_BIMETALA = expansion.attachInputBit(7, DEBOUNCE_FAST, INVERTED);   // VHOD  7 - IZPAD BIMETALA
 
 bool& S2_1 = expansion.attachInputBit(8, DEBOUNCE_FAST, INVERTED);   // VHOD  8 - S2.1 PRISOTNOST LESA (KONEC)
 bool& S2_2 = expansion.attachInputBit(9, DEBOUNCE_FAST);             // VHOD  9 - S2.2 POZICIJA KORAKA IZMETALNE VERIGE
-bool& S2_3 = expansion.attachInputBit(10, DEBOUNCE_FAST);            // VHOD 10 - S2.3 POZICIJA KORAKA DVIŽNE VERIGE
+bool& S2_3 = expansion.attachInputBit(10, DEBOUNCE_FAST);            // VHOD 10 - S2.3 POZICIJA KORAKA DVIZNE VERIGE
 bool& S2_4 = expansion.attachInputBit(11, DEBOUNCE_FAST);            // VHOD 11 - S2.4 FLIPER SENZOR 1
 bool& S2_5 = expansion.attachInputBit(12, DEBOUNCE_FAST);            // VHOD 12 - S2.5 FLIPER SENZOR 2
 bool& S2_6 = expansion.attachInputBit(13, DEBOUNCE_FAST);            // VHOD 13 - S2.6 FLIPER SENZOR 3
@@ -49,33 +51,38 @@ bool& S2_8 = expansion.attachInputBit(15, DEBOUNCE_FAST);            // VHOD 15 
 bool& S2_9 = expansion.attachInputBit(16, DEBOUNCE_FAST, INVERTED);  // VHOD 16 - S2.9 POZICIJA LESA KONEC
 bool& S2_12 = expansion.attachInputBit(17, DEBOUNCE_SLOW);           // VHOD 17 - S2.12 POZICIJA LESA NA VALJCNI 2
 
-bool& S2_10 = expansion.attachInputBit(20, DEBOUNCE_FAST);           // VHOD 20 - S2.10 IZMET SLABIH OD (OSNOVNI POLOŽAJ)
-bool& S2_11 = expansion.attachInputBit(21, DEBOUNCE_FAST);           // VHOD 21 - S2.11 IZMET SLABIH DP (DELOVNI POLOŽAJ)
-bool& S2_13 = expansion.attachInputBit(22, DEBOUNCE_FAST);           // VHOD 22 - S2.13 IZMET DOBRIH OD (OSNOVNI POLOŽAJ)
-bool& S2_14 = expansion.attachInputBit(23, DEBOUNCE_FAST);           // VHOD 23 - S2.14 IZMET DOBRIH DP (DELOVNI POLOŽAJ)
+bool& S2_10 = expansion.attachInputBit(20, DEBOUNCE_FAST);           // VHOD 20 - S2.10 IZMET SLABIH OD (OSNOVNI POLOZAJ)
+bool& S2_11 = expansion.attachInputBit(21, DEBOUNCE_FAST);           // VHOD 21 - S2.11 IZMET SLABIH DP (DELOVNI POLOZAJ)
+bool& S2_13 = expansion.attachInputBit(22, DEBOUNCE_FAST);           // VHOD 22 - S2.13 IZMET DOBRIH OD (OSNOVNI POLOZAJ)
+bool& S2_14 = expansion.attachInputBit(23, DEBOUNCE_FAST);           // VHOD 23 - S2.14 IZMET DOBRIH DP (DELOVNI POLOZAJ)
 
-bool& S2_15 = expansion.attachInputBit(24, DEBOUNCE_FAST, INVERTED); // VHOD 24 - S2.15 PRISOTNOST KOSA PRED ŽAGO (KONEC)
+bool& S2_15 = expansion.attachInputBit(24, DEBOUNCE_3s, INVERTED); // VHOD 24 - S2.15 PRISOTNOST KOSA PRED ZAGO (KONEC)
 
 bool& ZAVESA = expansion.attachInputBit(25, DEBOUNCE_FAST);          // VHOD 25 - ZAVESA
 
 // OUTPUTS
 bool& OUT_HOLD = expansion.attachOutputBit(0);  // IZHOD  0 - FREIGABE VKLOP
-bool& ALARM = expansion.attachOutputBit(1);  // IZHOD  0 - ALARM
+bool& ALARM = expansion.attachOutputBit(1);     // IZHOD  1 - ALARM
 
-bool& M2_1 = expansion.attachOutputBit(8);      // IZHOD  8 - M2.1 VALJ?NA PROGA IZ SKOBELJNEGA
+bool& B2_3 = expansion.attachOutputBit(2, INVERTED);  // IZHOD  2 - B2.3 BREMZA ZA MOTOR M2.3
+
+bool& M2_1 = expansion.attachOutputBit(8);      // IZHOD  8 - M2.1 VALJCNA PROGA IZ SKOBELJNEGA
 bool& M2_2 = expansion.attachOutputBit(9);      // IZHOD  9 - M2.2 IZMETALNA VERIGA
-bool& M2_3 = expansion.attachOutputBit(10);     // IZHOD 10 - M2.3 DVIŽNA VERIGA
-bool& M2_4 = expansion.attachOutputBit(11);     // IZHOD 11 - M2.4 VALJ?NA PROGA PRED SKENERJEM
-bool& M2_5 = expansion.attachOutputBit(12);     // IZHOD 12 - M2.5 VALJ?NA PROGA ZA SKENERJEM
+bool& M2_3 = expansion.attachOutputBit(10);     // IZHOD 10 - M2.3 DVIZNA VERIGA
+bool& M2_4 = expansion.attachOutputBit(11);     // IZHOD 11 - M2.4 VALJCNA PROGA PRED SKENERJEM
+bool& M2_5 = expansion.attachOutputBit(12);     // IZHOD 12 - M2.5 VALJCNA PROGA ZA SKENERJEM
 
-bool& Y2_1A = expansion.attachOutputBit(16);    // IZHOD 16 - Y2.1A FLIPER 1 OD (OSNOVNI POLOŽAJ)
-bool& Y2_1B = expansion.attachOutputBit(17);    // IZHOD 17 - Y2.1B FLIPER 1 DP (DELOVNI POLOŽAJ)
-bool& Y2_2A = expansion.attachOutputBit(18);    // IZHOD 18 - Y2.2A FLIPER 2 OD (OSNOVNI POLOŽAJ)
-bool& Y2_2B = expansion.attachOutputBit(19);    // IZHOD 19 - Y2.2B FLIPER 2 DP (DELOVNI POLOŽAJ)
-bool& Y2_3A = expansion.attachOutputBit(20);    // IZHOD 20 - Y2.3A IZMET SLABIH OD (OSNOVNI POLOŽAJ)
-bool& Y2_3B = expansion.attachOutputBit(21);    // IZHOD 21 - Y2.3B IZMET SLABIH DP (DELOVNI POLOŽAJ)
-bool& Y2_4A = expansion.attachOutputBit(22);    // IZHOD 22 - Y2.4A IZMET DOBRIH OD (OSNOVNI POLOŽAJ)
-bool& Y2_4B = expansion.attachOutputBit(23);    // IZHOD 23 - Y2.4B IZMET DOBRIH DP (DELOVNI POLOŽAJ)
+bool& Y2_1A = expansion.attachOutputBit(16);    // IZHOD 16 - Y2.1A FLIPER 1 OD (OSNOVNI POLOZAJ)
+bool& Y2_1B = expansion.attachOutputBit(17);    // IZHOD 17 - Y2.1B FLIPER 1 DP (DELOVNI POLOZAJ)
+bool& Y2_2A = expansion.attachOutputBit(18);    // IZHOD 18 - Y2.2A FLIPER 2 OD (OSNOVNI POLOZAJ)
+bool& Y2_2B = expansion.attachOutputBit(19);    // IZHOD 19 - Y2.2B FLIPER 2 DP (DELOVNI POLOZAJ)
+bool& Y2_3A = expansion.attachOutputBit(20);    // IZHOD 20 - Y2.3A IZMET SLABIH OD (OSNOVNI POLOZAJ)
+bool& Y2_3B = expansion.attachOutputBit(21);    // IZHOD 21 - Y2.3B IZMET SLABIH DP (DELOVNI POLOZAJ)
+bool& Y2_4A = expansion.attachOutputBit(22);    // IZHOD 22 - Y2.4A IZMET DOBRIH OD (OSNOVNI POLOZAJ)
+bool& Y2_4B = expansion.attachOutputBit(23);    // IZHOD 23 - Y2.4B IZMET DOBRIH DP (DELOVNI POLOZAJ)
+
+bool& S_TEST = expansion.attachInputBit(30, DEBOUNCE_3s);   // VHOD  30 - TEST INPUT S_TEST
+bool& Y_TEST = expansion.attachOutputBit(30);               // IZHOD 30 - TEST OUTPUT Y_TEST
 
 struct Fliper_t {
     bool state = false;

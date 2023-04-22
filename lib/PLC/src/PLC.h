@@ -191,6 +191,13 @@ struct plc_t {
         segment_2_2.loop();
         segment_2_4.loop();
 
+        // TODO: Izmet slabih 
+        Y2_3A = true;
+        Y2_3B = false;
+
+        // IO Latency test for debounce
+        Y_TEST = S_TEST;
+
         Fliper.sync();
     }
 };

@@ -8,12 +8,14 @@ struct segment_2_4_t: _vovk_plc_block_t {
     bool deska_vhodna_prisotna = true;
     bool deska_izhodna_prisotna = true;
 
+    bool force_single_move = true;
+
     void izhodisce() {
         // if (DEBUG_FLOW && running) Serial.printf(_SEGMENT_NAME_ " Konec\n");
         running = false;
         finished = false;
         safe = true;
-        M2_3 = false;
+        motor_stop();
         flow.reset();
     }
 
@@ -48,6 +50,11 @@ struct segment_2_4_t: _vovk_plc_block_t {
         if (running) {
             izhodisce();
         }
+    }
+
+    void motor_stop() {
+        M2_3 = false;
+        B2_3 = true;
     }
 
     enum {
@@ -95,14 +102,15 @@ struct segment_2_4_t: _vovk_plc_block_t {
         if (work) {
             switch (flow.phase) {
                 case FAZA_0_PRICAKAJ_POGOJE: {
-                    M2_3 = false;
+                    motor_stop();
                     if (push_is_safe) {
                         blokada_z_strani_filperja = true;
                         if (kombinacija_1_zagona) Serial.printf(_SEGMENT_NAME_ " Pomik na valjcke\n");
                         if (kombinacija_2_zagona) Serial.printf(_SEGMENT_NAME_ " Vmesno polnjenje\n");
                         safe = false;
                         finished = false;
-                        timer.set(100);
+                        B2_3 = false; // Izklop bremze
+                        timer.set(200);
                         flow.next();
                     }
                     break;
@@ -158,19 +166,20 @@ struct segment_2_4_t: _vovk_plc_block_t {
                         flow.next();
                     } else {
                         blokada_z_strani_filperja = false;
-                        if (single_move) {
-                            M2_3 = false;
+                        if (single_move || force_single_move) {
+                            motor_stop();
                             safe = true;
                             finished = true;
                             flow.reset();
                         } else {
+                            timer.set(100);
                             flow.goTo(FAZA_1_M2_ON); // Podaj naslednjo desko
                         }
                     }
                     break;
                 }
                 case FAZA_5_M2_OFF_AWAIT_DA_PADE: {
-                    M2_3 = false;
+                    motor_stop();
                     if (flow.phaseSetup()) timer.set(800);
                     if (timer.finished()) {
                         safe = true;
