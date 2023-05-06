@@ -67,11 +67,11 @@ struct plc_t {
         bool START_PRESSED = SW_A_START || SW_BTN_MCU;
 
         if (AUTO && _old_auto != AUTO) {
-            STOP = true;
+            // STOP = true;
             Serial.println("ACTIVATED AUTO");
         }
         if (ROCNO && _old_rocno != ROCNO) {
-            STOP = true;
+            // STOP = true;
             Serial.println("ACTIVATED ROCNO");
         }
         if (SERVIS && _old_servis != SERVIS) Serial.println("ACTIVATED SERVIS");

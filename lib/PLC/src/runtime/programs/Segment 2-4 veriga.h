@@ -4,7 +4,7 @@
 #define _SEGMENT_NAME_ "[Segment 2-4 veriga]"
 
 
-struct segment_2_4_t: _vovk_plc_block_t {
+struct segment_2_4_t : _vovk_plc_block_t {
     bool deska_vhodna_prisotna = true;
     bool deska_izhodna_prisotna = true;
 
@@ -14,6 +14,7 @@ struct segment_2_4_t: _vovk_plc_block_t {
         // if (DEBUG_FLOW && running) Serial.printf(_SEGMENT_NAME_ " Konec\n");
         running = false;
         finished = false;
+        blokada_z_strani_filperja = false;
         safe = true;
         motor_stop();
         flow.reset();
@@ -25,9 +26,7 @@ struct segment_2_4_t: _vovk_plc_block_t {
         flow.onChangePrint = DEBUG_FLOW_CHANGE;
         izhodisce();
         zalogovnik.setup(velikost_zalogovnika);
-        zalogovnik.pozicija[0] = 0;
-        // P2 = false;
-        // zalogovnik.empty();
+        // zalogovnik.pozicija[0] = 1;
     }
 
     Timeout t_zakasnitev;
@@ -74,39 +73,46 @@ struct segment_2_4_t: _vovk_plc_block_t {
         }
         if (!enabled) return;
 
-        deska_vhodna_prisotna = P2;
+        bool prvaPrisotna = zalogovnik.prisotnaPrva();
+        bool zadnjaPrisotna = zalogovnik.prisotnaZadnja();
+
+        deska_vhodna_prisotna = prvaPrisotna;
         deska_izhodna_prisotna = P3;
 
         bool senzor_pohojen = S2_3;
 
-        int stevilo_desk = zalogovnik.st_desk;
+        int stevilo_desk = zalogovnik.getStDesk();
 
         bool on = AUTO || ROCNO || stopping;
         bool work = running && on;
 
-        bool prvaPrisotna = zalogovnik.prisotnaPrva();
-        bool zadnjaPrisotna = zalogovnik.prisotnaZadnja();
-        bool kombinacija_1_zagona = stevilo_desk > 0 && !deska_izhodna_prisotna;
-        bool kombinacija_2_zagona = prvaPrisotna && !zadnjaPrisotna && deska_izhodna_prisotna;
+        bool kombinacija_1_zagona = ROCNO && stevilo_desk > 0 && !deska_izhodna_prisotna;
+        bool kombinacija_2_zagona = AUTO && prvaPrisotna && !deska_izhodna_prisotna;
+        bool kombinacija_3_zagona = prvaPrisotna && !zadnjaPrisotna && deska_izhodna_prisotna;
 
         if (P_5s) {
-            Serial.printf(_SEGMENT_NAME_ " status: DESKE: %d , IZH: %c , PP: %c , ZP: %c\n",
+            Serial.printf(_SEGMENT_NAME_ " status: DESKE: %d , IZH: %c , PP: %c , ZP: %c , BLOK: %c, k1: %c, k2: %c, k3: %c\n",
                 stevilo_desk,
                 deska_izhodna_prisotna ? 'Y' : 'N',
                 prvaPrisotna ? 'Y' : 'N',
-                zadnjaPrisotna ? 'Y' : 'N'
+                zadnjaPrisotna ? 'Y' : 'N',
+                blokada_z_strani_filperja ? 'Y' : 'N',
+                kombinacija_1_zagona ? 'Y' : 'N',
+                kombinacija_2_zagona ? 'Y' : 'N',
+                kombinacija_3_zagona ? 'Y' : 'N'
             );
         }
 
-        bool push_is_safe = !blokada_z_strani_filperja && (kombinacija_1_zagona || kombinacija_2_zagona);
+        bool push_is_safe = (ROCNO || !blokada_z_strani_filperja) && (kombinacija_1_zagona || kombinacija_2_zagona || kombinacija_3_zagona);
         if (work) {
             switch (flow.phase) {
                 case FAZA_0_PRICAKAJ_POGOJE: {
                     motor_stop();
                     if (push_is_safe) {
                         blokada_z_strani_filperja = true;
-                        if (kombinacija_1_zagona) Serial.printf(_SEGMENT_NAME_ " Pomik na valjcke\n");
-                        if (kombinacija_2_zagona) Serial.printf(_SEGMENT_NAME_ " Vmesno polnjenje\n");
+                        if (kombinacija_1_zagona) Serial.printf(_SEGMENT_NAME_ " Pomik na valjcke rocno\n");
+                        else if (kombinacija_2_zagona) Serial.printf(_SEGMENT_NAME_ " Pomik na valjcke avtomatsko\n");
+                        else if (kombinacija_3_zagona) Serial.printf(_SEGMENT_NAME_ " Pomik na valjcke avtomatsko (izhodna deska prisotna)\n");
                         safe = false;
                         finished = false;
                         B2_3 = false; // Izklop bremze
@@ -160,9 +166,7 @@ struct segment_2_4_t: _vovk_plc_block_t {
                     bool prisotna_deska = zalogovnik.move();
                     deska_vhodna_prisotna = false;
                     if (prisotna_deska || flipper_ima_desko || SERVIS) {
-                        // SERVIS_M2 = false;
                         deska_izhodna_prisotna = true;
-                        // if (P2) cilindri.run();
                         flow.next();
                     } else {
                         blokada_z_strani_filperja = false;
@@ -180,14 +184,12 @@ struct segment_2_4_t: _vovk_plc_block_t {
                 }
                 case FAZA_5_M2_OFF_AWAIT_DA_PADE: {
                     motor_stop();
-                    if (flow.phaseSetup()) timer.set(800);
+                    if (flow.phaseSetup()) timer.set(1000);
                     if (timer.finished()) {
                         safe = true;
                         finished = true;
-                        // if (AUTO)
                         flow.reset();
                         blokada_z_strani_filperja = false;
-                        // else izhodisce();
                     }
                     break;
                 }

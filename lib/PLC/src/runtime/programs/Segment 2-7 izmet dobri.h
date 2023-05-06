@@ -4,7 +4,7 @@
 #define _SEGMENT_NAME_ "[Segment 2-7 izmet dobri]"
 
 
-struct segment_2_7_t: _vovk_plc_block_t {
+struct segment_2_7_t : _vovk_plc_block_t {
     bool deska_vhodna_pripravljena = true;
     bool deska_izhodna_pripravljena = true;
 
@@ -55,14 +55,14 @@ struct segment_2_7_t: _vovk_plc_block_t {
         if (!enabled) {
             return;
         }
-        P5 = S2_9;
+
         P6 = S2_15;
 
         deska_vhodna_pripravljena = P5;
         deska_izhodna_pripravljena = P6;
-        // if (P_5s) {
-        //     Serial.printf("deska_vhodna_pripravljena: %c   deska_izhodna_pripravljena: %c   IzmetacDobri.jeZadaj(): %c\n", deska_vhodna_pripravljena ? '1' : '0', deska_izhodna_pripravljena ? '1' : '0', IzmetacDobri.jeZadaj() ? '1' : '0');
-        // }
+        if (P_5s) {
+            Serial.printf("deska_vhodna_pripravljena: %c   deska_izhodna_pripravljena: %c   IzmetacDobri.jeZadaj(): %c\n", deska_vhodna_pripravljena ? '1' : '0', deska_izhodna_pripravljena ? '1' : '0', IzmetacDobri.jeZadaj() ? '1' : '0');
+        }
         bool on = AUTO || ROCNO;
         bool work = running && on;
         if (work) {
@@ -73,8 +73,8 @@ struct segment_2_7_t: _vovk_plc_block_t {
                     break;
                 }
                 case FAZA_1_NAPREJ: {
-                    if (ZAVESA && deska_vhodna_pripravljena && !deska_izhodna_pripravljena && IzmetacDobri.jeZadaj()) {
-                        if (S2_9) IzmetacDobri.naprej();
+                    if (ZAVESA && deska_vhodna_pripravljena && !deska_izhodna_pripravljena && IzmetacDobri.jeZadaj() && !zgornja_proga_obratuje) {
+                        IzmetacDobri.naprej();
                         timer.set(5000);
                         flow.next();
                     }
@@ -94,8 +94,8 @@ struct segment_2_7_t: _vovk_plc_block_t {
                 }
                 case FAZA_3_POCAKAJ_PADEC: {
                     bool jeZadaj = IzmetacDobri.jeZadaj();
-                    if (jeZadaj) deska_vhodna_pripravljena = false;
-                    if (jeZadaj && deska_izhodna_pripravljena) {
+                    if (jeZadaj) {
+                        deska_vhodna_pripravljena = false;
                         flow.reset();
                     }
                     break;

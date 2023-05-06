@@ -4,12 +4,13 @@
 #define _SEGMENT_NAME_ "[Segment 2-5 proga]"
 
 
-struct segment_2_5_t: _vovk_plc_block_t {
+struct segment_2_5_t : _vovk_plc_block_t {
     bool deska_vhodna_pripravljena = true;
     bool deska_izhodna_pripravljena = true;
-    bool stanje_vmesne_deske = true;
 
-    bool ima_vmesno_desko = true;
+    bool deska_na_izhodu = false;
+
+    Timer timeout;
 
     void izhodisce() {
         // if (DEBUG_FLOW && running) Serial.printf(_SEGMENT_NAME_ " Konec\n");
@@ -17,6 +18,7 @@ struct segment_2_5_t: _vovk_plc_block_t {
         finished = false;
         M2_4 = false;
         M2_5 = false;
+        zgornja_proga_obratuje = false;
         safe = true;
         flow.reset();
     }
@@ -47,7 +49,9 @@ struct segment_2_5_t: _vovk_plc_block_t {
         FAZA_0_PRICAKAJ_POGOJE = 0,
         FAZA_1_ZAGON,
         FAZA_2_ZAKASNJEN_ZAGON,
-        FAZA_3_USTAVITEV
+        FAZA_3_ZAZNAVANJE_ON,
+        FAZA_4_ZAZNAVANJE_OFF,
+        FAZA_5_USTAVITEV,
     };
 
     void loop() {
@@ -59,58 +63,71 @@ struct segment_2_5_t: _vovk_plc_block_t {
         if (!enabled) {
             return;
         }
+
+        P3 = S2_12; // Deska prisotna na zacetku
+
         deska_vhodna_pripravljena = P3;
-        deska_izhodna_pripravljena = P5; // TODO: P4 za IZMET
+        // TODO: P4 za IZMET
+        deska_izhodna_pripravljena = P5;
 
-        bool deska_vmesna_odmaknjena = !S2_12 && stanje_vmesne_deske;
-        stanje_vmesne_deske = S2_12;
-
-        bool deska_prisotna = S2_1;
+        // bool deska_prisotna = S2_1;
+        bool deska_vmes = S2_8;
+        bool deska_prisotna = S2_9;
 
         bool on = AUTO || ROCNO;
         bool work = running && on;
         if (work) {
-            if (M2_4 && deska_vmesna_odmaknjena && deska_vhodna_pripravljena) {
-                deska_vhodna_pripravljena = false;
-                ima_vmesno_desko = true;
-            }
 
             switch (flow.phase) {
                 case FAZA_0_PRICAKAJ_POGOJE: {
                     timer.set(100);
                     flow.next();
-                    ima_vmesno_desko = false;
                     break;
                 }
                 case FAZA_1_ZAGON: {
-                    if (timer.finished() && deska_vhodna_pripravljena && !deska_izhodna_pripravljena && IzmetacDobri.jeZadaj()) {
+                    if (timer.finished() && (deska_vhodna_pripravljena || deska_vmes) && !deska_izhodna_pripravljena && IzmetacDobri.jeZadaj()) {
+                        zgornja_proga_obratuje = true;
                         M2_4 = true;
                         M2_5 = false;
                         timer.set(50);
                         flow.next();
+                        timeout.set(25000); // timer za izklop proge
                     }
                     break;
                 }
                 case FAZA_2_ZAKASNJEN_ZAGON: {
                     if (timer.finished()) {
+                        zgornja_proga_obratuje = true;
                         M2_4 = true;
                         M2_5 = true;
-                        timer.set(25000); // timer za izklop proge
                         flow.next();
-                    }
+                    } else if (timeout.finished()) izhodisce();
                     break;
                 }
-                case FAZA_3_USTAVITEV: {
-                    if (timer.finished() || S2_9) {
-                        cycle_counter++;
-                        M2_4 = false;
-                        M2_5 = false;
-                        // if (!ima_vmesno_desko) deska_vhodna_pripravljena = false; // Samo, ce ni deske na vmesnem senzorju
-                        if (S2_9) deska_izhodna_pripravljena = true;
-                        flow.reset();
-                    }
+                case FAZA_3_ZAZNAVANJE_ON: {
+                    if (deska_prisotna) {
+                        deska_izhodna_pripravljena = true;
+                        timer.set(20);
+                        flow.next();
+                    } else if (timeout.finished()) izhodisce();
                     break;
                 }
+                case FAZA_4_ZAZNAVANJE_OFF: {
+                    if (timer.finished() && !deska_prisotna) {
+                        flow.next();
+                    } else if (timeout.finished()) izhodisce();
+                    break;
+                }
+                case FAZA_5_USTAVITEV: {
+                    cycle_counter++;
+                    M2_4 = false;
+                    M2_5 = false;
+                    zgornja_proga_obratuje = false;
+                    deska_na_izhodu = false;
+                    flow.reset();
+                    break;
+                }
+
 
                 default: {
                     izhodisce();

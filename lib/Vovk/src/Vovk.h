@@ -17,3 +17,7 @@
 #include "modules/thread.h"
 #include "modules/timeout.h"
 #include "modules/time_keeper.h"
+
+#ifndef Timer
+#define Timer Timeout
+#endif

@@ -3,7 +3,7 @@
 
 #define _SEGMENT_NAME_ "[Segment 2-1 proga]"
 
-struct segment_2_1_t: _vovk_plc_block_t {
+struct segment_2_1_t : _vovk_plc_block_t {
     bool masina_lahko_dela = false;
     bool deska_izhodna_pripravljena = true;
 
@@ -57,7 +57,7 @@ struct segment_2_1_t: _vovk_plc_block_t {
             safe = true;
         }
         if (!enabled) return;
-        bool on = AUTO || ROCNO;
+        bool on = AUTO;
         bool work = running && on;
 
         deska_izhodna_pripravljena = P1;
@@ -112,7 +112,6 @@ struct segment_2_1_t: _vovk_plc_block_t {
             izhodisce();
         }
 
-        // P1 = deska_izhodna_pripravljena || ROCNO; // P1 je prisotna, ce je proga deska_izhodna_pripravljenaa ali ce je rocno vklopljena
         P1 = deska_izhodna_pripravljena; // P1 je prisotna, ce je proga deska_izhodna_pripravljena
         OUT_HOLD = !masina_lahko_dela; // Stroj lahko obdeluje samo kadar je proga aktivna
         safe = !M2_1; // Proga je varna, ce je izklopljena

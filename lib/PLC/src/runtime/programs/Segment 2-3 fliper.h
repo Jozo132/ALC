@@ -4,7 +4,7 @@
 #define _SEGMENT_NAME_ "[Segment 2-3 fliper]"
 
 
-struct segment_2_3_t: _vovk_plc_block_t {
+struct segment_2_3_t : _vovk_plc_block_t {
     bool deska_izhodna_prisotna = true;
 
     void izhodisce() {
@@ -88,14 +88,15 @@ struct segment_2_3_t: _vovk_plc_block_t {
                 }
                 case FAZA_1_FLIPER_1_GOR: {
                     Fliper.moveTo(1);
-                    if (fliper_vmes) {
+                    if (fliper_vmes && !blokada_z_strani_filperja) {
+                        if (AUTO) blokada_z_strani_filperja = true;
                         if (!flipper_ima_desko) segment_2_3_prosto_za_desko = true;
                         flow.next();
                     }
                     break;
                 }
                 case FAZA_2_PRICAKAJ_PRIHOD_DESKE: {
-                    if (flipper_ima_desko && veriga_stoji && !blokada_z_strani_filperja) {
+                    if (flipper_ima_desko && veriga_stoji && (AUTO || !blokada_z_strani_filperja)) {
                         blokada_z_strani_filperja = true;
                         segment_2_3_prosto_za_desko = false;
                         flow.next();
