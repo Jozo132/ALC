@@ -4,6 +4,8 @@
 
 bool& LED = AutoPins.attach(PC13, OUTPUT, INVERTED);
 
+long cycleTime_us = 0;
+
 // EXPANSION
 #include <LSR32IO.h>
 
@@ -26,7 +28,7 @@ LSR32IO expansion(cs_pin, latch_pin, en_pin, rst_pin);
 #define DEBOUNCE_1s 5000 // Number of cycles to debounce inputs
 #define DEBOUNCE_3s DEBOUNCE_1s * 3
 
-bool& SW_BTN_MCU = expansion.attachInputBit(31, DEBOUNCE_FAST);
+// bool& SW_BTN_MCU = expansion.attachInputBit(31, DEBOUNCE_FAST);
 // bool& SW_BTN_MCU = AutoPins.attach(PA0, INPUT_PULLUP);
 
 // INPUTS
@@ -34,7 +36,7 @@ bool& EMERGENCY = expansion.attachInputBit(0, DEBOUNCE_FAST);                  /
 bool& SW_A_START = expansion.attachInputBit(1, DEBOUNCE_FAST);                 // VHOD  1 - TIPKA START
 bool& SW_A_STOP = expansion.attachInputBit(2, DEBOUNCE_FAST, INVERTED);        // VHOD  2 - TIPKA STOP (invertiran)
 bool& SW_MODE_1 = expansion.attachInputBit(3, DEBOUNCE_FAST);                  // VHOD  3 - TIPKA MODE 1 (rezim delovanja)
-bool& SW_MODE_2 = expansion.attachInputBit(4, DEBOUNCE_FAST);                  // VHOD  4 - TIPKA MODE 2 (rezim delovanja)
+bool& SW_DELOVANJE_IZMETA = expansion.attachInputBit(4, DEBOUNCE_FAST);                  // VHOD  4 - TIPKA MODE 2 (rezim delovanja)
 bool& SW_IZHODISCE = expansion.attachInputBit(5, DEBOUNCE_FAST);               // VHOD  5 - TIPKA IZHODISCE
 bool& VKLOP_SISTEMA = expansion.attachInputBit(6, DEBOUNCE_FAST);              // VHOD  6 - TIPKA VKLOP SISTEMA
 bool& IZPAD_BIMETALA = expansion.attachInputBit(7, DEBOUNCE_FAST, INVERTED);   // VHOD  7 - IZPAD BIMETALA
@@ -50,6 +52,7 @@ bool& S2_8 = expansion.attachInputBit(15, DEBOUNCE_SLOW);            // VHOD 15 
 
 bool& S2_9 = expansion.attachInputBit(16, DEBOUNCE_FAST, INVERTED);  // VHOD 16 - S2.9 POZICIJA LESA KONEC
 bool& S2_12 = expansion.attachInputBit(17, DEBOUNCE_SLOW);           // VHOD 17 - S2.12 POZICIJA LESA NA VALJCNI 1
+bool& S2_16 = expansion.attachInputBit(18, DEBOUNCE_SLOW);           // VHOD 18 - S2.16 POZICIJA LESA NA VALJCNI 2
 
 bool& S2_10 = expansion.attachInputBit(20, DEBOUNCE_FAST);           // VHOD 20 - S2.10 IZMET SLABIH OD (OSNOVNI POLOZAJ)
 bool& S2_11 = expansion.attachInputBit(21, DEBOUNCE_FAST);           // VHOD 21 - S2.11 IZMET SLABIH DP (DELOVNI POLOZAJ)
@@ -81,8 +84,8 @@ bool& Y2_3B = expansion.attachOutputBit(21);    // IZHOD 21 - Y2.3B IZMET SLABIH
 bool& Y2_4A = expansion.attachOutputBit(22);    // IZHOD 22 - Y2.4A IZMET DOBRIH OD (OSNOVNI POLOZAJ)
 bool& Y2_4B = expansion.attachOutputBit(23);    // IZHOD 23 - Y2.4B IZMET DOBRIH DP (DELOVNI POLOZAJ)
 
-bool& S_TEST = expansion.attachInputBit(30, DEBOUNCE_3s);   // VHOD  30 - TEST INPUT S_TEST
-bool& Y_TEST = expansion.attachOutputBit(30);               // IZHOD 30 - TEST OUTPUT Y_TEST
+// bool& S_TEST = expansion.attachInputBit(30, DEBOUNCE_3s);   // VHOD  30 - TEST INPUT S_TEST
+// bool& Y_TEST = expansion.attachOutputBit(30);               // IZHOD 30 - TEST OUTPUT Y_TEST
 
 struct Fliper_t {
     bool state = false;
@@ -173,6 +176,10 @@ bool segment_2_3_prosto_za_desko = false;
 bool flipper_ima_desko = false;
 bool blokada_z_strani_filperja = false;
 bool zgornja_proga_obratuje = false;
+
+bool deskaZgoraj() {
+    return S2_12 || S2_16;
+}
 
 bool AUTO = false;   // Mode AUTO
 bool ROCNO = false;  // Mode ROCNO

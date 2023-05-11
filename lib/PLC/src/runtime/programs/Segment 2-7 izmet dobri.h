@@ -61,7 +61,7 @@ struct segment_2_7_t : _vovk_plc_block_t {
         deska_vhodna_pripravljena = P5;
         deska_izhodna_pripravljena = P6;
         if (P_5s) {
-            Serial.printf("deska_vhodna_pripravljena: %c   deska_izhodna_pripravljena: %c   IzmetacDobri.jeZadaj(): %c\n", deska_vhodna_pripravljena ? '1' : '0', deska_izhodna_pripravljena ? '1' : '0', IzmetacDobri.jeZadaj() ? '1' : '0');
+            Serial.printf(_SEGMENT_NAME_ " deska_vhodna_pripravljena: %c   deska_izhodna_pripravljena: %c   IzmetacDobri.jeZadaj(): %c    SW_DELOVANJE_IZMETA: %c\n", deska_vhodna_pripravljena ? '1' : '0', deska_izhodna_pripravljena ? '1' : '0', IzmetacDobri.jeZadaj() ? '1' : '0', SW_DELOVANJE_IZMETA ? '1' : '0');
         }
         bool on = AUTO || ROCNO;
         bool work = running && on;
@@ -69,11 +69,11 @@ struct segment_2_7_t : _vovk_plc_block_t {
             switch (flow.phase) {
                 case FAZA_0_PRICAKAJ_POGOJE: {
                     IzmetacDobri.nazaj();
-                    flow.next();
+                    if (IzmetacDobri.jeZadaj()) flow.next();
                     break;
                 }
                 case FAZA_1_NAPREJ: {
-                    if (ZAVESA && deska_vhodna_pripravljena && !deska_izhodna_pripravljena && IzmetacDobri.jeZadaj() && !zgornja_proga_obratuje) {
+                    if (ZAVESA && deska_vhodna_pripravljena && !deska_izhodna_pripravljena /* && IzmetacDobri.jeZadaj() */ && !zgornja_proga_obratuje && SW_DELOVANJE_IZMETA) {
                         IzmetacDobri.naprej();
                         timer.set(5000);
                         flow.next();
@@ -81,12 +81,14 @@ struct segment_2_7_t : _vovk_plc_block_t {
                     break;
                 }
                 case FAZA_2_NAZAJ: {
+                    IzmetacDobri.naprej();
                     if (IzmetacDobri.jeSpredaj() || timer.finished()) {
                         IzmetacDobri.nazaj();
                         flow.next();
                     } else {
                         if (!ZAVESA) {
-                            IzmetacDobri.nazaj();
+                            // IzmetacDobri.nazaj();
+                            Y2_4B = false;
                             flow.goTo(FAZA_1_NAPREJ);
                         }
                     }

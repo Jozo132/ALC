@@ -64,7 +64,7 @@ struct segment_2_5_t : _vovk_plc_block_t {
             return;
         }
 
-        P3 = S2_12; // Deska prisotna na zacetku
+        P3 = deskaZgoraj(); // Deska prisotna na zacetku
 
         deska_vhodna_pripravljena = P3;
         // TODO: P4 za IZMET
@@ -137,7 +137,7 @@ struct segment_2_5_t : _vovk_plc_block_t {
         } else {
             izhodisce();
         }
-        P3 = deska_vhodna_pripravljena;
+        // P3 = deska_vhodna_pripravljena; // Je vezano na senzor
         P5 = deska_izhodna_pripravljena;
     }
 };

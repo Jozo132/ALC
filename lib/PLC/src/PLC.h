@@ -64,7 +64,7 @@ struct plc_t {
         ROCNO = !STOP && SW_MODE_1;
         SERVIS = false;
 
-        bool START_PRESSED = SW_A_START || SW_BTN_MCU;
+        bool START_PRESSED = SW_A_START /* || SW_BTN_MCU */;
 
         if (AUTO && _old_auto != AUTO) {
             // STOP = true;
@@ -196,7 +196,7 @@ struct plc_t {
         Y2_3B = false;
 
         // IO Latency test for debounce
-        Y_TEST = S_TEST;
+        // Y_TEST = S_TEST;
 
         Fliper.sync();
     }

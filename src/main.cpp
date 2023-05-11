@@ -43,6 +43,7 @@ void log_bytes(const char* name, const byte* bytes, int len, bool reverse = fals
 }
 int sec_count = 0;
 void loop() {
+    long cycle_start_us = micros();
     cycle_count++;
     validateTime();
     P_5s = P_5s_timer.check();
@@ -69,6 +70,8 @@ void loop() {
     plc.loop();
     AutoPins.loop();
     expansion.loop();
+    if (P_5s) Serial.printf("Cycle time [us]: %d\n", cycleTime_us);
+    cycleTime_us = micros() - cycle_start_us;
     IWatchdog.reload();
 }
 

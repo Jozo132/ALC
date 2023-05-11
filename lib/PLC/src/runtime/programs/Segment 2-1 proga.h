@@ -68,7 +68,7 @@ struct segment_2_1_t : _vovk_plc_block_t {
 
             if (M2_1 && deska_prisotna) {
                 zakasnitev_aktivna = true;
-                zakasnitev_izklopa.set(2000);
+                zakasnitev_izklopa.set(1000);
             }
 
             M2_1 = flow.phase != FAZA_2_IZMET /* && !deska_izhodna_pripravljena */ && !deska_prisotna && !veriga_2_2_obratuje;
