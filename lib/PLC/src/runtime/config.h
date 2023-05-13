@@ -52,7 +52,7 @@ bool& S2_8 = expansion.attachInputBit(15, DEBOUNCE_SLOW);            // VHOD 15 
 
 bool& S2_9 = expansion.attachInputBit(16, DEBOUNCE_FAST, INVERTED);  // VHOD 16 - S2.9 POZICIJA LESA KONEC
 bool& S2_12 = expansion.attachInputBit(17, DEBOUNCE_SLOW);           // VHOD 17 - S2.12 POZICIJA LESA NA VALJCNI 1
-bool& S2_16 = expansion.attachInputBit(18, DEBOUNCE_SLOW);           // VHOD 18 - S2.16 POZICIJA LESA NA VALJCNI 2
+bool& S2_16 = expansion.attachInputBit(19, DEBOUNCE_SLOW);           // VHOD 18 - S2.16 POZICIJA LESA NA VALJCNI 2
 
 bool& S2_10 = expansion.attachInputBit(20, DEBOUNCE_FAST);           // VHOD 20 - S2.10 IZMET SLABIH OD (OSNOVNI POLOZAJ)
 bool& S2_11 = expansion.attachInputBit(21, DEBOUNCE_FAST);           // VHOD 21 - S2.11 IZMET SLABIH DP (DELOVNI POLOZAJ)

@@ -137,7 +137,6 @@ struct segment_2_5_t : _vovk_plc_block_t {
         } else {
             izhodisce();
         }
-        // P3 = deska_vhodna_pripravljena; // Je vezano na senzor
         P5 = deska_izhodna_pripravljena;
     }
 };

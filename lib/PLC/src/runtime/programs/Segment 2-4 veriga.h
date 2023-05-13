@@ -91,7 +91,7 @@ struct segment_2_4_t : _vovk_plc_block_t {
         bool kombinacija_3_zagona = prvaPrisotna && !zadnjaPrisotna && deska_izhodna_prisotna;
 
         if (P_5s) {
-            Serial.printf(_SEGMENT_NAME_ " status: DESKE: %d , IZH: %c , PP: %c , ZP: %c , BLOK: %c, k1: %c, k2: %c, k3: %c\n",
+            Serial.printf(_SEGMENT_NAME_ " status: DESKE: %d , IZH: %c , PP: %c , ZP: %c , BLOK: %c, k1: %c, k2: %c, k3: %c, S2_12: %c, S2_16: %c\n",
                 stevilo_desk,
                 deska_izhodna_prisotna ? 'Y' : 'N',
                 prvaPrisotna ? 'Y' : 'N',
@@ -99,7 +99,9 @@ struct segment_2_4_t : _vovk_plc_block_t {
                 blokada_z_strani_filperja ? 'Y' : 'N',
                 kombinacija_1_zagona ? 'Y' : 'N',
                 kombinacija_2_zagona ? 'Y' : 'N',
-                kombinacija_3_zagona ? 'Y' : 'N'
+                kombinacija_3_zagona ? 'Y' : 'N',
+                S2_12 ? 'Y' : 'N',
+                S2_16 ? 'Y' : 'N'
             );
         }
 
@@ -166,7 +168,6 @@ struct segment_2_4_t : _vovk_plc_block_t {
                     bool prisotna_deska = zalogovnik.move();
                     deska_vhodna_prisotna = false;
                     if (prisotna_deska || flipper_ima_desko || SERVIS) {
-                        deska_izhodna_prisotna = true;
                         flow.next();
                     } else {
                         blokada_z_strani_filperja = false;
@@ -202,7 +203,6 @@ struct segment_2_4_t : _vovk_plc_block_t {
             izhodisce();
         }
         P2 = deska_vhodna_prisotna;
-        P3 = deska_izhodna_prisotna;
     }
 };
 

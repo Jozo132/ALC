@@ -107,7 +107,6 @@ struct plc_t {
                 stop_hard();
             else
                 stop_soft();
-            P3 = true; // Forsiraj prisotnost deske
         } else {  // READY
 
             if (AUTO || ROCNO) {
