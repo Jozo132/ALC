@@ -147,19 +147,28 @@ struct Fliper_t {
 } Fliper;
 
 struct IzmetacDobri_t {
+    bool jeZdajState = true;
+    int direction = -1;
     void naprej() {
         Y2_4A = false;
         Y2_4B = true;
+        direction = 1;
+        jeZdajState = false;
     }
     void nazaj() {
         Y2_4A = true;
         Y2_4B = false;
+        direction = -1;
     }
     bool jeSpredaj() {
         return !S2_13 && S2_14;
     }
     bool jeZadaj() {
-        return S2_13 && !S2_14;
+        bool zadajPulseUP = S2_13 && !S2_14;
+        if (direction == -1 && zadajPulseUP) {
+            jeZdajState = true;
+        }
+        return jeZdajState;
     }
 } IzmetacDobri;
 
