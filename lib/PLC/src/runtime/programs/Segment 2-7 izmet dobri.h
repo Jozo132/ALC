@@ -4,9 +4,12 @@
 #define _SEGMENT_NAME_ "[Segment 2-7 izmet dobri]"
 
 
+TOnDelay ton_izhod_sproscen(3000);
+
 struct segment_2_7_t : _vovk_plc_block_t {
     bool deska_vhodna_pripravljena = true;
     bool deska_izhodna_pripravljena = true;
+    bool izhod_sproscen = true;
 
     void izhodisce() {
         // if (DEBUG_FLOW && running) Serial.printf(_SEGMENT_NAME_ " Konec\n");
@@ -60,8 +63,17 @@ struct segment_2_7_t : _vovk_plc_block_t {
 
         deska_vhodna_pripravljena = P5;
         deska_izhodna_pripravljena = P6;
+
+        izhod_sproscen = ton_izhod_sproscen.check(!deska_izhodna_pripravljena);
+
         if (P_5s) {
-            Serial.printf(_SEGMENT_NAME_ " deska_vhodna_pripravljena: %c   deska_izhodna_pripravljena: %c   IzmetacDobri.jeZadaj(): %c    SW_DELOVANJE_IZMETA: %c\n", deska_vhodna_pripravljena ? '1' : '0', deska_izhodna_pripravljena ? '1' : '0', IzmetacDobri.jeZadaj() ? '1' : '0', SW_DELOVANJE_IZMETA ? '1' : '0');
+            Serial.printf(_SEGMENT_NAME_ " deska_vhodna_pripravljena: %c   deska_izhodna_pripravljena: %c   IzmetacDobri.jeZadaj(): %c    SW_DELOVANJE_IZMETA: %c    izhod_sproscen: %c\n",
+                deska_vhodna_pripravljena ? '1' : '0',
+                deska_izhodna_pripravljena ? '1' : '0',
+                IzmetacDobri.jeZadaj() ? '1' : '0',
+                SW_DELOVANJE_IZMETA ? '1' : '0',
+                izhod_sproscen ? 'Y' : 'N'
+            );
         }
         bool on = AUTO || ROCNO;
         bool work = running && on;
@@ -73,7 +85,7 @@ struct segment_2_7_t : _vovk_plc_block_t {
                     break;
                 }
                 case FAZA_1_NAPREJ: {
-                    if (ZAVESA && deska_vhodna_pripravljena && !deska_izhodna_pripravljena /* && IzmetacDobri.jeZadaj() */ && !zgornja_proga_obratuje && SW_DELOVANJE_IZMETA) {
+                    if (ZAVESA && deska_vhodna_pripravljena && !deska_izhodna_pripravljena /* && IzmetacDobri.jeZadaj() */ && !zgornja_proga_obratuje && SW_DELOVANJE_IZMETA && izhod_sproscen) {
                         IzmetacDobri.naprej();
                         timer.set(5000);
                         flow.next();
