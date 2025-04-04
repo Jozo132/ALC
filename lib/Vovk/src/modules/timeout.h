@@ -44,3 +44,34 @@ public:
         this->reset();
     }
 };
+
+class TOnDelay {
+private:
+    bool triggered = false;
+    bool state = false;
+    long last_trigger = 0;
+    long duration = 1000;
+    long t = 0;
+public:
+    TOnDelay(long timeout) {
+        this->duration = timeout;
+    }
+    bool check(bool bit) {
+        if (bit) {
+            if (triggered) return true;
+            if (!state) {
+                state = true;
+                last_trigger = millis();
+            }
+            t = millis();
+            if (t < this->last_trigger || t >= this->last_trigger + this->duration) {
+                triggered = true;
+                return true;
+            }
+        } else {
+            state = false;
+            triggered = false;
+        }
+        return false;
+    }
+};
