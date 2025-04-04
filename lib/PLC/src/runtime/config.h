@@ -63,8 +63,11 @@ bool& S2_15 = expansion.attachInputBit(24, DEBOUNCE_3s, INVERTED); // VHOD 24 - 
 
 bool& ZAVESA = expansion.attachInputBit(25, DEBOUNCE_FAST);          // VHOD 25 - ZAVESA
 
+bool& SCANNER_ON = expansion.attachInputBit(26, DEBOUNCE_FAST);     // VHOD 26 - SCANNER ENABLED
+bool& SCANNER_BUSY = expansion.attachInputBit(27, DEBOUNCE_FAST);   // VHOD 27 - SCANNER BUSY
+
 // OUTPUTS
-bool& OUT_HOLD = expansion.attachOutputBit(0);  // IZHOD  0 - FREIGABE VKLOP
+bool& OUT_HOLD = expansion.attachOutputBit(0, INVERTED);  // IZHOD  0 - FREIGABE VKLOP
 bool& ALARM = expansion.attachOutputBit(1);     // IZHOD  1 - ALARM
 
 bool& B2_3 = expansion.attachOutputBit(2, INVERTED);  // IZHOD  2 - B2.3 BREMZA ZA MOTOR M2.3
@@ -85,7 +88,8 @@ bool& Y2_4A = expansion.attachOutputBit(22);    // IZHOD 22 - Y2.4A IZMET DOBRIH
 bool& Y2_4B = expansion.attachOutputBit(23);    // IZHOD 23 - Y2.4B IZMET DOBRIH DP (DELOVNI POLOZAJ)
 
 // bool& S_TEST = expansion.attachInputBit(30, DEBOUNCE_3s);   // VHOD  30 - TEST INPUT S_TEST
-// bool& Y_TEST = expansion.attachOutputBit(30);               // IZHOD 30 - TEST OUTPUT Y_TEST
+// bool& Y1_TEST = expansion.attachOutputBit(29);               // IZHOD 30 - TEST OUTPUT Y1_TEST
+// bool& Y2_TEST = expansion.attachOutputBit(30);               // IZHOD 32 - TEST OUTPUT Y2_TEST
 
 struct Fliper_t {
     bool state = false;
@@ -186,8 +190,20 @@ bool flipper_ima_desko = false;
 bool blokada_z_strani_filperja = false;
 bool zgornja_proga_obratuje = false;
 
+
+TOnDelay ton_deskaZgoraj(2000);
+TOnDelay tof_deskaZgoraj(2000);
+bool deskaZgoraj_out = false;
 bool deskaZgoraj() {
-    return S2_12 || S2_16;
+    bool pogoj = S2_12 || S2_16;
+
+    // Y1_TEST = ton_deskaZgoraj.check(S_TEST);
+    // Y2_TEST = tof_deskaZgoraj.check(!S_TEST);
+
+    // if (ton_zgoraj) deskaZgoraj_out = true;
+    // if (tof_zgoraj) deskaZgoraj_out = false;
+    // return deskaZgoraj_out;
+    return pogoj;
 }
 
 bool AUTO = false;   // Mode AUTO

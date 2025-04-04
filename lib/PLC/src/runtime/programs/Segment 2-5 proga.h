@@ -3,12 +3,19 @@
 
 #define _SEGMENT_NAME_ "[Segment 2-5 proga]"
 
+TOnDelay scanner_freigabe(2000);
 
 struct segment_2_5_t : _vovk_plc_block_t {
     bool deska_vhodna_pripravljena = true;
     bool deska_izhodna_pripravljena = true;
 
     bool deska_na_izhodu = false;
+
+    bool scanner_busy = false;
+    bool scanner_on = false;
+    bool scanner_allow = false;
+
+    bool M2_4_marker = false;
 
     Timer timeout;
 
@@ -17,6 +24,7 @@ struct segment_2_5_t : _vovk_plc_block_t {
         running = false;
         finished = false;
         M2_4 = false;
+        M2_4_marker = false;
         M2_5 = false;
         zgornja_proga_obratuje = false;
         safe = true;
@@ -70,6 +78,12 @@ struct segment_2_5_t : _vovk_plc_block_t {
         // TODO: P4 za IZMET
         deska_izhodna_pripravljena = P5;
 
+        scanner_on = SCANNER_ON;
+        scanner_busy = SCANNER_BUSY;
+        scanner_allow = scanner_on && !scanner_busy;
+
+        bool scanner_block = scanner_freigabe.check(!scanner_allow);
+
         // bool deska_prisotna = S2_1;
         bool deska_vmes = S2_8;
         bool deska_prisotna = S2_9;
@@ -87,7 +101,7 @@ struct segment_2_5_t : _vovk_plc_block_t {
                 case FAZA_1_ZAGON: {
                     if (timer.finished() && (deska_vhodna_pripravljena || deska_vmes) && !deska_izhodna_pripravljena && IzmetacDobri.jeZadaj()) {
                         zgornja_proga_obratuje = true;
-                        M2_4 = true;
+                        M2_4_marker = true;
                         M2_5 = false;
                         timer.set(50);
                         flow.next();
@@ -98,7 +112,7 @@ struct segment_2_5_t : _vovk_plc_block_t {
                 case FAZA_2_ZAKASNJEN_ZAGON: {
                     if (timer.finished()) {
                         zgornja_proga_obratuje = true;
-                        M2_4 = true;
+                        M2_4_marker = true;
                         M2_5 = true;
                         flow.next();
                     } else if (timeout.finished()) izhodisce();
@@ -120,7 +134,7 @@ struct segment_2_5_t : _vovk_plc_block_t {
                 }
                 case FAZA_5_USTAVITEV: {
                     cycle_counter++;
-                    M2_4 = false;
+                    M2_4_marker = false;
                     M2_5 = false;
                     zgornja_proga_obratuje = false;
                     deska_na_izhodu = false;
@@ -138,6 +152,9 @@ struct segment_2_5_t : _vovk_plc_block_t {
             izhodisce();
         }
         P5 = deska_izhodna_pripravljena;
+
+        // Prepre?i premik valj?kov ko skenira
+        M2_4 = M2_4_marker && !scanner_block;
     }
 };
 
