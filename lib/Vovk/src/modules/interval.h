@@ -11,6 +11,7 @@
 
 #include <Arduino.h>
 
+#ifndef XTP_14A6_E
 class Interval {
 private:
     bool enabled = true;
@@ -47,6 +48,8 @@ public:
         this->reset();
     }
 };
+
+#endif // XTP_14A6_E
 
 #ifdef USE_GLOBAL_INTERVAL_CHECK
 
@@ -190,6 +193,9 @@ void IntervalGlobalLoopCheck() {
     }
 }
 #else
+
+#ifndef XTP_14A6_E
 void IntervalGlobalLoopCheck() {
 }
+#endif // XTP_14A6_E
 #endif

@@ -5,17 +5,17 @@
 
 
 // Sets bit at position [bit] of byte [b] to 1 
-byte LSR32IO::setBit(byte b, unsigned int bit) {
+byte LSR32IO::setBit_f(byte b, unsigned int bit) {
     b |= 1 << bit;
     return b;
 }
 // Sets bit at position [bit] of byte [b] to 0 
-byte LSR32IO::resetBit(byte b, unsigned int bit) {
+byte LSR32IO::resetBit_f(byte b, unsigned int bit) {
     b &= ~(1 << bit);
     return b;
 }
 // Toggles bit at position [bit] of byte [b]
-byte LSR32IO::toggleBit(byte b, unsigned int bit) {
+byte LSR32IO::toggleBit_f(byte b, unsigned int bit) {
     b ^= 1UL << bit;
     return b;
 }
@@ -44,7 +44,7 @@ void LSR32IO::map_output_pointers() {
             bit = 8 * i + j;
             state = output_bit[bit];
             if (invertedOutput[bit]) state = !state;
-            output[i] = state ? this->setBit(output[i], j) : this->resetBit(output[i], j);
+            output[i] = state ? this->setBit_f(output[i], j) : this->resetBit_f(output[i], j);
         }
 }
 

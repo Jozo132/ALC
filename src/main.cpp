@@ -1,7 +1,15 @@
+#ifdef XTP_14A6_E
+#include <xtp-lib.h>
+#endif
+
 #include <PLC.h>
+void thread();
 
 void setup() {
-    IWatchdog.begin(30000);
+#ifdef XTP_14A6_E
+    xtp_setup();
+#endif
+    IWatchdog.begin(15'000'000);
     IWatchdog.reload();
     Serial.begin(115200);
     LED = OFF;
@@ -28,6 +36,7 @@ void setup() {
     P_200ms_timer.reset();
     P_100ms_timer.reset();
     IWatchdog.reload();
+    thread_setup(1'000, thread);
 }
 
 uint32_t cycle_count = 0;
@@ -43,14 +52,65 @@ void log_bytes(const char* name, const byte* bytes, int len, bool reverse = fals
 }
 int sec_count = 0;
 void loop() {
+#ifdef XTP_14A6_E
+    xtp_loop();
+#endif
+
+    if (P_50ms) {
+        char msg[128];
+        sprintf(msg, "Time: %d us", cycleTime_us);
+        Serial.printf("%s\n", msg);
+        auto& I = expansion.input;
+        auto& O = expansion.output;
+        int i = 0;
+        int o = 0;
+
+
+        sprintf(msg, "I:%c%c%c%c %c%c%c%c %c%c%c%c %c%c%c%c",
+            (I[i] >> 0) & 1 ? '1' : '-', (I[i] >> 1) & 1 ? '1' : '-', (I[i] >> 2) & 1 ? '1' : '-', (I[i] >> 3) & 1 ? '1' : '-',
+            (I[i] >> 4) & 1 ? '1' : '-', (I[i] >> 5) & 1 ? '1' : '-', (I[i] >> 6) & 1 ? '1' : '-', (I[i++] >> 7) & 1 ? '1' : '-',
+            (I[i] >> 0) & 1 ? '1' : '-', (I[i] >> 1) & 1 ? '1' : '-', (I[i] >> 2) & 1 ? '1' : '-', (I[i] >> 3) & 1 ? '1' : '-',
+            (I[i] >> 4) & 1 ? '1' : '-', (I[i] >> 5) & 1 ? '1' : '-', (I[i] >> 6) & 1 ? '1' : '-', (I[i++] >> 7) & 1 ? '1' : '-');
+        oled_print(msg, 0, 0);
+        sprintf(msg, "  %c%c%c%c %c%c%c%c %c%c%c%c %c%c%c%c",
+            (I[i] >> 0) & 1 ? '1' : '-', (I[i] >> 1) & 1 ? '1' : '-', (I[i] >> 2) & 1 ? '1' : '-', (I[i] >> 3) & 1 ? '1' : '-',
+            (I[i] >> 4) & 1 ? '1' : '-', (I[i] >> 5) & 1 ? '1' : '-', (I[i] >> 6) & 1 ? '1' : '-', (I[i++] >> 7) & 1 ? '1' : '-',
+            (I[i] >> 0) & 1 ? '1' : '-', (I[i] >> 1) & 1 ? '1' : '-', (I[i] >> 2) & 1 ? '1' : '-', (I[i] >> 3) & 1 ? '1' : '-',
+            (I[i] >> 4) & 1 ? '1' : '-', (I[i] >> 5) & 1 ? '1' : '-', (I[i] >> 6) & 1 ? '1' : '-', (I[i++] >> 7) & 1 ? '1' : '-');
+        oled_print(msg, 0, 1);
+
+        sprintf(msg, "O:%c%c%c%c %c%c%c%c %c%c%c%c %c%c%c%c",
+            (O[o] >> 0) & 1 ? '1' : '-', (O[o] >> 1) & 1 ? '1' : '-', (O[o] >> 2) & 1 ? '1' : '-', (O[o] >> 3) & 1 ? '1' : '-',
+            (O[o] >> 4) & 1 ? '1' : '-', (O[o] >> 5) & 1 ? '1' : '-', (O[o] >> 6) & 1 ? '1' : '-', (O[o++] >> 7) & 1 ? '1' : '-',
+            (O[o] >> 0) & 1 ? '1' : '-', (O[o] >> 1) & 1 ? '1' : '-', (O[o] >> 2) & 1 ? '1' : '-', (O[o] >> 3) & 1 ? '1' : '-',
+            (O[o] >> 4) & 1 ? '1' : '-', (O[o] >> 5) & 1 ? '1' : '-', (O[o] >> 6) & 1 ? '1' : '-', (O[o++] >> 7) & 1 ? '1' : '-');
+        oled_print(msg, 0, 3);
+        sprintf(msg, "  %c%c%c%c %c%c%c%c %c%c%c%c %c%c%c%c",
+            (O[o] >> 0) & 1 ? '1' : '-', (O[o] >> 1) & 1 ? '1' : '-', (O[o] >> 2) & 1 ? '1' : '-', (O[o] >> 3) & 1 ? '1' : '-',
+            (O[o] >> 4) & 1 ? '1' : '-', (O[o] >> 5) & 1 ? '1' : '-', (O[o] >> 6) & 1 ? '1' : '-', (O[o++] >> 7) & 1 ? '1' : '-',
+            (O[o] >> 0) & 1 ? '1' : '-', (O[o] >> 1) & 1 ? '1' : '-', (O[o] >> 2) & 1 ? '1' : '-', (O[o] >> 3) & 1 ? '1' : '-',
+            (O[o] >> 4) & 1 ? '1' : '-', (O[o] >> 5) & 1 ? '1' : '-', (O[o] >> 6) & 1 ? '1' : '-', (O[o++] >> 7) & 1 ? '1' : '-');
+        oled_print(msg, 0, 4);
+
+
+    }
+    IWatchdog.reload();
+}
+
+// 1kHz Parallel running code
+void thread(void) {
     long cycle_start_us = micros();
     cycle_count++;
     validateTime();
+#ifndef XTP_14A6_E
     P_5s = P_5s_timer.check();
     P_1s = P_1s_timer.check();
     P_500ms = P_500ms_timer.check();
     P_200ms = P_200ms_timer.check();
     P_100ms = P_100ms_timer.check();
+#else // XTP_14A6_E
+    IntervalGlobalLoopCheck();
+#endif
     AutoPins.loop();
     expansion.loop();
     if (P_1s) sec_count++;
@@ -70,11 +130,5 @@ void loop() {
     plc.loop();
     AutoPins.loop();
     expansion.loop();
-    if (P_5s) Serial.printf("Cycle time [us]: %d\n", cycleTime_us);
     cycleTime_us = micros() - cycle_start_us;
-    IWatchdog.reload();
-}
-
-// 1kHz Parallel running code
-void thread(void) {
 }

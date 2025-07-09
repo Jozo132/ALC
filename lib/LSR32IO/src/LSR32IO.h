@@ -62,8 +62,10 @@ private:
     int maxAddress = 32;
     long t = 0;
     byte tempByte;
+public:
     byte input[4 * LSR32IO_MAX_STACK_SIZE] = { 0x00 };
     byte output[4 * LSR32IO_MAX_STACK_SIZE] = { 0x00 };
+private:
     bool input_bit[8 * 4 * LSR32IO_MAX_STACK_SIZE] = { false };
     bool output_bit[8 * 4 * LSR32IO_MAX_STACK_SIZE] = { false };
     long interval = 10;
@@ -74,9 +76,9 @@ private:
     bool invertedOutput[8 * 4 * LSR32IO_MAX_STACK_SIZE] = { false };
     Debounce* debounce[8 * 4 * LSR32IO_MAX_STACK_SIZE];
 
-    byte setBit(byte b, unsigned int bit);
-    byte resetBit(byte b, unsigned int bit);
-    byte toggleBit(byte b, unsigned int bit);
+    byte setBit_f(byte b, unsigned int bit);
+    byte resetBit_f(byte b, unsigned int bit);
+    byte toggleBit_f(byte b, unsigned int bit);
 
     void map_input_pointers();
     void map_output_pointers();

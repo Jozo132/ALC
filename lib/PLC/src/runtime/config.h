@@ -9,6 +9,8 @@ long cycleTime_us = 0;
 // EXPANSION
 #include <LSR32IO.h>
 
+#ifndef XTP_14A6_E // old
+
 #define cs_pin PB9
 
 #define sck_pin PB13
@@ -18,6 +20,21 @@ long cycleTime_us = 0;
 #define latch_pin PB8
 #define en_pin PB5
 #define rst_pin PA15
+
+#else // XTP_14A6_E
+
+#define cs_pin AUX_CS_pin
+
+#define sck_pin SPI_EXP_SCK_pin
+#define miso_pin SPI_EXP_MISO_pin
+#define mosi_pin SPI_EXP_MOSI_pin
+
+#define latch_pin AUX_LATCH_pin
+#define en_pin AUX_ENABLE_pin
+#define rst_pin AUX_RESET_pin
+
+
+#endif
 
 LSR32IO expansion(cs_pin, latch_pin, en_pin, rst_pin);
 
@@ -52,19 +69,19 @@ bool& S2_8 = expansion.attachInputBit(15, DEBOUNCE_SLOW);            // VHOD 15 
 
 bool& S2_9 = expansion.attachInputBit(16, DEBOUNCE_FAST, INVERTED);  // VHOD 16 - S2.9 POZICIJA LESA KONEC
 bool& S2_12 = expansion.attachInputBit(17, DEBOUNCE_SLOW);           // VHOD 17 - S2.12 POZICIJA LESA NA VALJCNI 1
-bool& S2_16 = expansion.attachInputBit(19, DEBOUNCE_SLOW);           // VHOD 18 - S2.16 POZICIJA LESA NA VALJCNI 2
+bool& S2_16 = expansion.attachInputBit(18, DEBOUNCE_SLOW);           // VHOD 18 - S2.16 POZICIJA LESA NA VALJCNI 2
 
-bool& S2_10 = expansion.attachInputBit(20, DEBOUNCE_FAST);           // VHOD 20 - S2.10 IZMET SLABIH OD (OSNOVNI POLOZAJ)
-bool& S2_11 = expansion.attachInputBit(21, DEBOUNCE_FAST);           // VHOD 21 - S2.11 IZMET SLABIH DP (DELOVNI POLOZAJ)
-bool& S2_13 = expansion.attachInputBit(22, DEBOUNCE_FAST);           // VHOD 22 - S2.13 IZMET DOBRIH OD (OSNOVNI POLOZAJ)
-bool& S2_14 = expansion.attachInputBit(23, DEBOUNCE_FAST);           // VHOD 23 - S2.14 IZMET DOBRIH DP (DELOVNI POLOZAJ)
+bool& S2_10 = expansion.attachInputBit(19, DEBOUNCE_FAST);           // VHOD 20 - S2.10 IZMET SLABIH OD (OSNOVNI POLOZAJ)
+bool& S2_11 = expansion.attachInputBit(20, DEBOUNCE_FAST);           // VHOD 21 - S2.11 IZMET SLABIH DP (DELOVNI POLOZAJ)
+bool& S2_13 = expansion.attachInputBit(21, DEBOUNCE_FAST);           // VHOD 22 - S2.13 IZMET DOBRIH OD (OSNOVNI POLOZAJ)
+bool& S2_14 = expansion.attachInputBit(22, DEBOUNCE_FAST);           // VHOD 23 - S2.14 IZMET DOBRIH DP (DELOVNI POLOZAJ)
 
-bool& S2_15 = expansion.attachInputBit(24, DEBOUNCE_3s, INVERTED); // VHOD 24 - S2.15 PRISOTNOST KOSA PRED ZAGO (KONEC)
+bool& S2_15 = expansion.attachInputBit(23, DEBOUNCE_3s, INVERTED); // VHOD 24 - S2.15 PRISOTNOST KOSA PRED ZAGO (KONEC)
 
-bool& ZAVESA = expansion.attachInputBit(25, DEBOUNCE_FAST);          // VHOD 25 - ZAVESA
+bool& ZAVESA = expansion.attachInputBit(24, DEBOUNCE_FAST);          // VHOD 25 - ZAVESA
 
-bool& SCANNER_ON = expansion.attachInputBit(26, DEBOUNCE_FAST);     // VHOD 26 - SCANNER ENABLED
-bool& SCANNER_BUSY = expansion.attachInputBit(27, DEBOUNCE_FAST);   // VHOD 27 - SCANNER BUSY
+bool& SCANNER_ON = expansion.attachInputBit(25, DEBOUNCE_FAST);     // VHOD 26 - SCANNER ENABLED
+bool& SCANNER_BUSY = expansion.attachInputBit(26, DEBOUNCE_FAST);   // VHOD 27 - SCANNER BUSY
 
 // OUTPUTS
 bool& OUT_HOLD = expansion.attachOutputBit(0, INVERTED);  // IZHOD  0 - FREIGABE VKLOP

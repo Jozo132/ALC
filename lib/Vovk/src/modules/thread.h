@@ -1,6 +1,8 @@
 #pragma once
 #include <Arduino.h>
 
+#ifndef XTP_14A6_E
+
 void thread(void);
 
 static HardwareTimer thread_Timer(TIM2);
@@ -27,3 +29,5 @@ void thread_setup(uint32_t frequency = 1) {
     thread_Timer.attachInterrupt(thread_Timer_Number, thread_loop); // channel 2, handler
     thread_Timer.resume();
 }
+
+#endif // XTP_14A6_E

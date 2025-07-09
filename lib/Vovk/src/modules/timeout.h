@@ -2,6 +2,8 @@
 // JavaScript setTimeout alternative
 #include <Arduino.h>
 
+#ifndef XTP_14A6_E
+
 class Timeout {
 private:
     bool enabled = true;
@@ -44,6 +46,8 @@ public:
         this->reset();
     }
 };
+
+#endif
 
 class TOnDelay {
 private:
