@@ -192,10 +192,10 @@ void IntervalGlobalLoopCheck() {
         }
     }
 }
+
 #else
 
 #ifndef XTP_14A6_E
-void IntervalGlobalLoopCheck() {
-}
+void IntervalGlobalLoopCheck() {}
 #endif // XTP_14A6_E
 #endif
